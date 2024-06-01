@@ -19,7 +19,7 @@ public class HistoryApiFactory {
                 Duration.ofMinutes(5),
                 Duration.ofSeconds(60),
                 new TypeToken<List<HistoryEvent>>() {
-                }, historyEvents -> historyEvents.stream()
+                }, historyEvents -> historyEvents.responseObj().stream()
                 .map(event -> {
                     LocalDate date = LocalDate.parse(event.date(),
                             HistoryEventWithParsedDates.eventDateFormatterDecoder);

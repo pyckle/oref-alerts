@@ -43,15 +43,16 @@ public class OrefApiCachingService {
                 Duration.ofSeconds(1),
                 new TypeToken<Alert>() {
                 }, alertStore::addAlert);
+
         this.categoriesApi = new CachedApiCall<>(
                 OrefHttpRequestFactory.buildRequest(uris.getCategoriesUri()),
                 Duration.ofHours(12),
                 Duration.ofMinutes(30),
                 new TypeToken<>() {
                 });
-        URI districtsUri = uris.getDistrictsUri();
+
         this.districtApi = new CachedApiCall<>(
-                OrefHttpRequestFactory.buildRequest(districtsUri),
+                OrefHttpRequestFactory.buildRequest(uris.getDistrictsUri()),
                 Duration.ofHours(12),
                 Duration.ofMinutes(30),
                 new TypeToken<List<District>>() {

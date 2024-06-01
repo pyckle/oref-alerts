@@ -23,9 +23,9 @@ public class Main {
         Instant lastRetrieved = Instant.EPOCH;
         while (true) {
             CachedApiResult<List<ActiveAlert>> alert = orefApiCachingService.getAlert();
-            if (!Objects.equals(alert.lastRetrieved(), lastRetrieved)) {
-                System.out.println(alert.lastRetrieved() + " " + alert.retrievedValue());
-                lastRetrieved = alert.lastRetrieved();
+            if (!Objects.equals(alert.localTimestamp(), lastRetrieved)) {
+                System.out.println(alert.localTimestamp() + " " + alert.retrievedValue());
+                lastRetrieved = alert.localTimestamp();
             }
             // todo: implement notification callback rather than sleeping.
             Thread.sleep(100);

@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
 
     <name>oref-parent</name>
-    <url>http://www.github.com/pyckle/oref</url>
+    <url>http://www.github.com/pyckle/oref-alerts</url>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

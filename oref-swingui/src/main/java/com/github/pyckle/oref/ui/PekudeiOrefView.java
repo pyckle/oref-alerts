@@ -68,7 +68,7 @@ public class PekudeiOrefView {
 
         // if the alert last retrieved date changed but the alert is identical, update only the last time alerts
         // were fetched, no need to update anything else
-        if (!alertResult.lastRetrieved().equals(mostRecentAlert.lastRetrieved()) &&
+        if (!alertResult.localTimestamp().equals(mostRecentAlert.localTimestamp()) &&
                 Objects.equals(alertResult.retrievedValue(), mostRecentAlert.retrievedValue())) {
             mostRecentAlert = alertResult;
             if (!this.infoLabels.isEmpty()) {
@@ -80,14 +80,14 @@ public class PekudeiOrefView {
         // no need to rebuild the page.
         if (historyResult.retrievedValue() == lastHistoryUpdate
                 && Objects.equals(mostRecentAlert.retrievedValue(), alertResult.retrievedValue())
-                && lastDistrictStoreUpdate.equals(districtStore.lastRetrieved())) {
+                && lastDistrictStoreUpdate.equals(districtStore.localTimestamp())) {
             // no new info
             return;
         }
         // update everything
         lastHistoryUpdate = historyResult.retrievedValue();
         mostRecentAlert = alertResult;
-        lastDistrictStoreUpdate = districtStore.lastRetrieved();
+        lastDistrictStoreUpdate = districtStore.localTimestamp();
 
         List<HistoryEventWithParsedDates> historyEvents = Objects.requireNonNullElse(lastHistoryUpdate, List.of());
 
@@ -118,7 +118,7 @@ public class PekudeiOrefView {
                                   GridPlaceTracker tracker,
                                   List<HistoryEventWithParsedDates> historyEvents, LocalDate lastEventDate,
                                   LocalTime lastEventTime) {
-        String lastUpdatedHistory = OrefDateTimeUtils.formatDateAndTimeShort(historyResult.lastRetrieved());
+        String lastUpdatedHistory = OrefDateTimeUtils.formatDateAndTimeShort(historyResult.getLastUpdated());
         addNextCellToPanel(tracker, true, Color.WHITE, "Updated: " + lastUpdatedHistory);
         addNextCellToPanel(tracker, true, !historyEvents.isEmpty() ? Color.RED : Color.WHITE,
                 "Events in Past 24 hrs: " + historyEvents.size());
@@ -203,7 +203,7 @@ public class PekudeiOrefView {
     }
 
     private String getAlertUpdatedStr() {
-        String lastRetrievedDateStr = OrefDateTimeUtils.formatDateAndTimeShort(mostRecentAlert.lastRetrieved());
+        String lastRetrievedDateStr = OrefDateTimeUtils.formatDateAndTimeShort(mostRecentAlert.getLastUpdated());
         return hasAlert() ?
                 "Alerts as of: " + lastRetrievedDateStr
                 : "No Alerts as of: " + lastRetrievedDateStr;
@@ -240,6 +240,8 @@ public class PekudeiOrefView {
             }
         }
         setNewFont(newFont.getSize());
+        this.panel.revalidate();
+        this.panel.repaint();
     }
 
     private void setNewFont(int fontSize) {

@@ -1,5 +1,6 @@
 package com.github.pyckle.oref.integration.district;
 
+import com.github.pyckle.oref.integration.caching.ApiResponse;
 import com.github.pyckle.oref.integration.dto.District;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +28,9 @@ public class DistrictStore {
         this.hebrewNameToDistrictInfo = Map.of();
     }
 
-    public DistrictStore(String lang, List<District> districtList) {
+    public DistrictStore(String lang, ApiResponse<List<District>> districtList) {
         this.lang = Objects.requireNonNull(lang);
-        hebrewNameToDistrictInfo = districtList.stream()
+        hebrewNameToDistrictInfo = districtList.responseObj().stream()
                 .collect(Collectors.toUnmodifiableMap(District::label_he, Function.identity(), (a, b) -> {
                     //In case of duplicates (which does happen) use the first one. The JS code in
                     // the Pekudei Oref website does O(n) search everytime it needs to find this, which will

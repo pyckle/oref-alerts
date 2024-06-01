@@ -1,5 +1,6 @@
 package com.github.pyckle.oref.integration.activealerts;
 
+import com.github.pyckle.oref.integration.caching.ApiResponse;
 import com.github.pyckle.oref.integration.dto.Alert;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,7 @@ public class AlertsRolloverStorage {
         this.rollingAlerts = new ArrayDeque<>();
     }
 
-    public List<ActiveAlert> addAlert(Alert alert) {
+    public List<ActiveAlert> addAlert(ApiResponse<Alert> alert) {
         return this.addAlert(alert, Instant.now());
     }
 
@@ -64,7 +65,7 @@ public class AlertsRolloverStorage {
      * @param now   the current time
      * @return the current list of alerts
      */
-    public List<ActiveAlert> addAlert(Alert alert, Instant now) {
+    public List<ActiveAlert> addAlert(ApiResponse<Alert> alert, Instant now) {
         boolean mutatedAlerts = false;
 
         // Remove old alerts first in the unlikely case that Pekudei Oref is sending the same alert for over the
@@ -74,7 +75,7 @@ public class AlertsRolloverStorage {
         // note that this does not change whether we mutated alerts.
         cleanupRepeatPreventorMap(now);
 
-        mutatedAlerts |= addAlertIfNew(alert, now);
+        mutatedAlerts |= addAlertIfNew(alert.responseObj(), now);
 
         if (mutatedAlerts) {
             updateActiveAlerts();

@@ -2,8 +2,10 @@ package com.github.pyckle.oref.integration.caching;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * A class to handle updates to Pekudei Oref APIs. As we want to retry sooner upon a failure to access an API (to
@@ -38,25 +40,26 @@ public class CacheUpdateThread extends Thread {
 
     private void runUpdateLoop() {
         while (true) {
-            var nextTask = priorityQueue.poll();
+            var currTask = priorityQueue.poll();
             long now = System.currentTimeMillis();
             try {
-                if (now < nextTask.nextTimeToCall) {
-                    Thread.sleep(nextTask.nextTimeToCall - now);
+                if (now < currTask.nextTimeToCall) {
+                    Thread.sleep(currTask.nextTimeToCall - now);
                 }
-                boolean wasInitialized = nextTask.toRefresh.isInitializedYet();
-                boolean successfulUpdate = nextTask.toRefresh.update();
+                boolean wasInitialized = currTask.toRefresh.isInitializedYet();
+                boolean successfulUpdate = currTask.toRefresh.update();
                 if (successfulUpdate) {
                     if (!wasInitialized) {
                         latch.countDown();
                     }
-                    nextTask.setNextTimeToCall(nextTask.toRefresh.getCachedValue().lastRetrieved().toEpochMilli() +
-                            nextTask.toRefresh.getCacheDuration().toMillis());
-                    priorityQueue.add(nextTask);
+                    // update timestamp
+                    long nextTimeToCall = computeNextTimeToCall(currTask);
+                    currTask.setNextTimeToCall(nextTimeToCall);
+                    priorityQueue.add(currTask);
                 } else {
-                    nextTask.setNextTimeToCall(
-                            System.currentTimeMillis() + nextTask.toRefresh.getWaitOnFailure().toMillis());
-                    priorityQueue.add(nextTask);
+                    currTask.setNextTimeToCall(
+                            System.currentTimeMillis() + currTask.toRefresh.getWaitOnFailure().toMillis());
+                    priorityQueue.add(currTask);
                 }
             } catch (InterruptedException ex) {
                 // exit - we're done!
@@ -64,6 +67,35 @@ public class CacheUpdateThread extends Thread {
                 return;
             }
         }
+    }
+
+    private static long computeNextTimeToCall(ApiUpdateTask currTask) {
+        long minWait = currTask.toRefresh.getCacheDuration().toMillis();
+        CachedApiResult<?> cachedValue = currTask.toRefresh.getCachedValue();
+        long now = cachedValue.localTimestamp().toEpochMilli();
+        long minNextTimeToCall = now + minWait;
+        long maxNextTimeToCall = now + minWait * 3;
+        if (cachedValue.maxAge() >= 1) {
+            Instant generatedTimestamp =
+                    Objects.requireNonNullElse(cachedValue.serverTimestamp(), cachedValue.localTimestamp());
+
+            // add some randomness to multiple clients shooting the request into the server at the exact same time
+            int randomness = ThreadLocalRandom.current().nextInt(1_000) - 500;
+            long computedNextTimeToCall =
+                    generatedTimestamp.plusSeconds(cachedValue.maxAge()).toEpochMilli() + randomness;
+
+            // be sure to refresh not less than something unreasonably past the requested update interval
+            if (computedNextTimeToCall > maxNextTimeToCall) {
+                return maxNextTimeToCall;
+            }
+
+            // ensure that we don't call more than the duration
+            if (computedNextTimeToCall > minNextTimeToCall) {
+                return computedNextTimeToCall;
+            }
+        }
+
+        return minNextTimeToCall;
     }
 
     static class ApiUpdateTask implements Comparable<ApiUpdateTask> {

@@ -17,7 +17,7 @@ public class CachedApiCall<T> {
     private final HttpRequest req;
     private final Duration cacheDuration;
     private final Duration waitOnFailure;
-    private final Callable<T> updateCallback;
+    private final Callable<ApiResponse<T>> updateCallback;
     private volatile CachedApiResult<T> cachedValue = null;
 
 
@@ -29,20 +29,20 @@ public class CachedApiCall<T> {
      * @param waitOnFailure If the request fails, how long to wait before attempting the request again
      */
     public CachedApiCall(HttpRequest req, Duration cacheDuration, Duration waitOnFailure, TypeToken<T> typeToken) {
-        this(req, cacheDuration, waitOnFailure, typeToken, Function.identity());
+        this(req, cacheDuration, waitOnFailure, typeToken, ApiResponse::responseObj);
     }
 
     public <U> CachedApiCall(HttpRequest req,
                              Duration cacheDuration,
                              Duration waitOnFailure,
                              TypeToken<U> typeToken,
-                             Function<U, T> transformer) {
+                             Function<ApiResponse<U>, T> transformer) {
         this.req = req;
         this.cacheDuration = cacheDuration;
         this.waitOnFailure = waitOnFailure;
         this.updateCallback = () -> {
-            U apiResp = OrefApiClient.get(req, typeToken);
-            return transformer.apply(apiResp);
+            var apiResp = OrefApiClient.get(req, typeToken);
+            return new ApiResponse<>(apiResp.response(), transformer.apply(apiResp));
         };
     }
 
@@ -60,14 +60,14 @@ public class CachedApiCall<T> {
 
     public boolean update() throws InterruptedException {
         try {
-            T res = updateCallback.call();
+            var res = updateCallback.call();
             var lastUpdate = Instant.now();
-            this.cachedValue = new CachedApiResult<>(lastUpdate, res);
+            this.cachedValue = CachedApiResult.buildCachedApiResult(lastUpdate, res.response(), res.responseObj());
         } catch (InterruptedException ex) {
             throw ex;
         } catch (Exception ex) {
             // try again later
-            logger.error("Failure to fetch update {}", ex.getLocalizedMessage());
+            logger.warn("Failure to fetch update {}", ex.getLocalizedMessage());
             logger.debug("Failure to fetch update", ex);
             return false;
         }
