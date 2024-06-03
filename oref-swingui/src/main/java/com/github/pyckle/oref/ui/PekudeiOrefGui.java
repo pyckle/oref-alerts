@@ -25,16 +25,15 @@ public class PekudeiOrefGui {
         frame.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
-                int height = frame.getHeight();
-                int width = frame.getWidth();
-                orefView.triggerResize(width, height, 0);
+                // note - use the inner panel for these sizes because outer frame includes the os frame.
+                orefView.triggerResize(orefView.getPanel().getWidth(), orefView.getPanel().getHeight());
             }
         });
 
         frame.setSize(1366, 768);
 
-        new Timer(1_000, e -> {
-            orefView.update(Instant.now());
+        new Timer(100, e -> {
+            orefView.update();
         }).start();
     }
 }

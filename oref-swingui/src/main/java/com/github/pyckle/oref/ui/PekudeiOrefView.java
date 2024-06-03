@@ -35,7 +35,6 @@ public class PekudeiOrefView {
 
     private int maxHeight;
     private int maxWidth;
-    private int clockHeight;
 
 
     public PekudeiOrefView(OrefConfig orefConfig) {
@@ -49,7 +48,7 @@ public class PekudeiOrefView {
         return panel;
     }
 
-    public boolean update(Instant now) {
+    public boolean update() {
         try {
             boolean oldHasAlert = hasAlert();
             internalUpdateEvents();
@@ -95,12 +94,10 @@ public class PekudeiOrefView {
         infoLabels.clear();
 
         GridPlaceTracker tracker = new GridPlaceTracker();
-        LocalDate lastEventDate = null;
-        LocalTime lastEventTime = null;
 
         updateAlertState(alertResult);
         addAlertMessages(tracker);
-        addHistoryToView(historyResult, tracker, historyEvents, lastEventDate, lastEventTime);
+        addHistoryToView(historyResult, tracker, historyEvents);
         padGridViewWithEmptyLabels(tracker);
 
         // as we added different strings, we may need a different font size
@@ -116,8 +113,9 @@ public class PekudeiOrefView {
 
     private void addHistoryToView(CachedApiResult<List<HistoryEventWithParsedDates>> historyResult,
                                   GridPlaceTracker tracker,
-                                  List<HistoryEventWithParsedDates> historyEvents, LocalDate lastEventDate,
-                                  LocalTime lastEventTime) {
+                                  List<HistoryEventWithParsedDates> historyEvents) {
+        LocalDate lastEventDate = null;
+        LocalTime lastEventTime = null;
         String lastUpdatedHistory = OrefDateTimeUtils.formatDateAndTimeShort(historyResult.getLastUpdated());
         addNextCellToPanel(tracker, true, Color.WHITE, "Updated: " + lastUpdatedHistory);
         addNextCellToPanel(tracker, true, !historyEvents.isEmpty() ? Color.RED : Color.WHITE,
@@ -214,10 +212,9 @@ public class PekudeiOrefView {
         return alerts != null && !alerts.isEmpty();
     }
 
-    public void triggerResize(int width, int height, int clockHeight) {
+    public void triggerResize(int width, int height) {
         this.maxHeight = height;
         this.maxWidth = width;
-        this.clockHeight = clockHeight;
         triggerResize();
     }
 
@@ -226,22 +223,27 @@ public class PekudeiOrefView {
             return;
         }
 
-        Font newFont = null;
-
         int numCols = (int) Math.ceil((double) this.infoLabels.size() / orefConfig.getNumRows());
         final int maxLabelWidth = this.maxWidth / numCols;
         final int maxLabelHeight = this.maxHeight / orefConfig.getNumRows();
-        for (JLabel l : infoLabels) {
-            int maxFontSize = newFont == null ? Integer.MAX_VALUE : newFont.getSize();
-            Font bestFontForRow = ResizeUtils.findBestFontSize(panel.getGraphics(), l.getFont(), l.getText(),
-                    maxLabelWidth, maxLabelHeight, maxFontSize);
-            if (newFont == null || bestFontForRow.getSize() < newFont.getSize()) {
-                newFont = bestFontForRow;
-            }
-        }
+        Font newFont = findBiggestPossibleFont(maxLabelWidth, maxLabelHeight);
         setNewFont(newFont.getSize());
         this.panel.revalidate();
         this.panel.repaint();
+    }
+
+    private Font findBiggestPossibleFont(int maxLabelWidth, int maxLabelHeight) {
+        Font newFont = infoLabels.get(0).getFont();
+        int maxFontSize = Integer.MAX_VALUE;
+        for (JLabel l : infoLabels) {
+            Font bestFontForRow = ResizeUtils.findBestFontSize(panel.getGraphics(), l.getFont(), l.getText(),
+                    maxLabelWidth, maxLabelHeight, maxFontSize);
+            if (bestFontForRow.getSize() < maxFontSize) {
+                newFont = bestFontForRow;
+                maxFontSize = newFont.getSize();
+            }
+        }
+        return newFont;
     }
 
     private void setNewFont(int fontSize) {
