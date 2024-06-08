@@ -4,24 +4,20 @@ import java.util.Properties;
 import java.util.Set;
 
 public class OrefConfig {
-    private static final String ROOT_PROP = "oref";
+    public static final String ROOT_PROP = "oref";
     private static final String DEFAULT_ENABLED = "true";
-    private static final String NUM_COLS = "num_cols";
-    private static final String DEFAULT_NUM_COLS = "10";
-    private static final String NUM_ROWS = "num_rows";
-    private static final String DEFAULT_NUM_ROWS = "30";
-    private static final String LANG = "lang";
+    public static final String MIN_FONT = "min_font_size";
+    private static final String DEFAULT_MIN_FONT = "16";
+    public static final String LANG = "lang";
     private static final String DEFAULT_LANG = "he";
 
     private final boolean isEnabled;
     private final String lang;
-    private final int numCols;
-    private final int numRows;
+    private final int minFontSize;
 
     public OrefConfig(Properties properties) {
         this.isEnabled = Boolean.parseBoolean(getProperty(properties, "", DEFAULT_ENABLED));
-        this.numCols = Integer.parseInt(getProperty(properties, NUM_COLS, DEFAULT_NUM_COLS));
-        this.numRows = Integer.parseInt(getProperty(properties, NUM_ROWS, DEFAULT_NUM_ROWS));
+        this.minFontSize = Integer.parseInt(getProperty(properties, MIN_FONT, DEFAULT_MIN_FONT));
         this.lang = getProperty(properties, LANG, DEFAULT_LANG);
     }
 
@@ -42,11 +38,7 @@ public class OrefConfig {
         return isRightToLeft;
     }
 
-    public int getNumCols() {
-        return numCols;
-    }
-
-    public int getNumRows() {
-        return numRows;
+    public int getMinFontSize() {
+        return minFontSize;
     }
 }

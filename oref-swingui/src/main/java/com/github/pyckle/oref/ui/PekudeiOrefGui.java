@@ -11,7 +11,9 @@ import java.util.Properties;
 
 public class PekudeiOrefGui {
     void createAndShowGUI() {
-        PekudeiOrefView orefView = new PekudeiOrefView(new OrefConfig(new Properties()));
+        Properties properties = new Properties();
+        properties.setProperty(OrefConfig.ROOT_PROP + "." + OrefConfig.LANG, "he");
+        PekudeiOrefView orefView = new PekudeiOrefView(new OrefConfig(properties));
 
         JFrame frame = new JFrame("Oref Dashboard");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

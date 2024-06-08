@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * The DTO returned from
- *
+ * <p>
  * example:
  * <pre>
  *     {
@@ -27,7 +27,8 @@ import java.util.List;
  *              this stackoverflow thread</a> and
  *              <a href="https://devblogs.microsoft.com/oldnewthing/20090306-00/?p=18913">this microsoft blog</a>
  * @param cat   the category of the alert. This is an integer (sent as a String) that corresponds to a warning category
- *              hardcoded within Pekudei Oref's website's JS.
+ *              hardcoded within Pekudei Oref's website's JS. In other APIs, this is referred to as "matrixid" in
+ *              {@link LeftoverAlertDescription#matrixid()} {@link Category#matrix_id()}
  * @param title A description of the alert category in Hebrew
  * @param data  A list of all the areas affected in Hebrew by this alert
  * @param desc  Directions on what to do in Hebrew for this alert

@@ -35,4 +35,9 @@ public class ResizeUtils {
     public static Font cloneFont(Font currFont, int newSize) {
         return new Font(currFont.getName(), currFont.getStyle(), newSize);
     }
+
+    public static int getWidthInPx(String text, Graphics g, Font f) {
+        FontMetrics fontMetrics = g.getFontMetrics(f);
+        return fontMetrics.stringWidth(text);
+    }
 }

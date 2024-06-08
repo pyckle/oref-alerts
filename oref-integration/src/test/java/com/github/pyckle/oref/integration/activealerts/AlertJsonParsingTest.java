@@ -1,7 +1,5 @@
-package com.github.pyckle.oref.integration;
+package com.github.pyckle.oref.integration.activealerts;
 
-import com.github.pyckle.oref.integration.activealerts.ActiveAlertFactory;
-import com.github.pyckle.oref.integration.activealerts.FileTimeToInstantUtil;
 import com.github.pyckle.oref.integration.dto.Alert;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -50,7 +48,7 @@ public class AlertJsonParsingTest {
      * @throws Exception
      */
     @Test
-    void testInvalidIds() throws Exception {
+    void testInvalidIds() {
         ensureReturnsEpoch("1");
         ensureReturnsEpoch("100");
         ensureReturnsEpoch("1000000");

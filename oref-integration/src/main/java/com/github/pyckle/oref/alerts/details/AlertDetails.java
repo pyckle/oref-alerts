@@ -8,6 +8,9 @@ public record AlertDetails(
         AlertSource alertSource,
         Instant receivedTimestamp,
         LocalDateTime remoteTimestamp,
+        boolean isDrill,
+        String category,
+        String translatedCategory,
         List<String> locations,
         List<String> locationsHeb
 ) {

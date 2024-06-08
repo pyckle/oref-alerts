@@ -1,6 +1,6 @@
 package com.github.pyckle.oref.integration.caching;
 
-import com.github.pyckle.oref.integration.district.DistrictStore;
+import com.github.pyckle.oref.integration.translationstores.DistrictStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

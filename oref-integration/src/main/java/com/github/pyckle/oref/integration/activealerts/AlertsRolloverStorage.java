@@ -31,9 +31,11 @@ public class AlertsRolloverStorage {
 
     /**
      * The amount of time that must pass before an area is displayed again due to being present in multiple alerts. Need
-     * to do some analysis on historical alerts to determine the most proper value
+     * to do some analysis on historical alerts to determine the most proper value. It may be that the alerts API doesn't
+     * give us enough info to deterministically understand whether an alert actually is duplicated, and we have to make
+     * a best effort.
      */
-    static final Duration repeatCityThreshold = Duration.ofSeconds(45);
+    static final Duration repeatCityThreshold = Duration.ofSeconds(50);
 
     private final Deque<ActiveAlert> rollingAlerts;
 

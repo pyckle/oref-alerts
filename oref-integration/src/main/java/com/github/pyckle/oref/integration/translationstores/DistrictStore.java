@@ -1,4 +1,4 @@
-package com.github.pyckle.oref.integration.district;
+package com.github.pyckle.oref.integration.translationstores;
 
 import com.github.pyckle.oref.integration.caching.ApiResponse;
 import com.github.pyckle.oref.integration.dto.District;

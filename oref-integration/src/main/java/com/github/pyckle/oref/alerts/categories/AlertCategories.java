@@ -24,8 +24,25 @@ public enum AlertCategories {
         }
     }
 
-    public Optional<AlertCategory> getAlertCategory(String cat) {
-        return Optional.ofNullable(categoryMap.get(cat));
+    /**
+     * Get the AlertCategory for the given matrixId
+     *
+     * @param matrixId the alert category description
+     * @return the alert category
+     */
+    public Optional<AlertCategory> getAlertCategory(String matrixId) {
+        return Optional.ofNullable(categoryMap.get(matrixId));
+    }
+
+    /**
+     * Check whether the alert is a drill
+     *
+     * @param cat the category of the alert
+     * @return whether it is a drill
+     */
+    public boolean isDrill(int cat) {
+        // this appears to be the convention used by Pekudei Oref
+        return cat >= 100;
     }
 
     public boolean isDrill(String cat) {

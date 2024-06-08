@@ -11,6 +11,11 @@ import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 
+/**
+ * Represents an API call where the return value can (or should) be cached.
+ *
+ * @param <T> the processed cached result of the API call
+ */
 public class CachedApiCall<T> {
     private static final Logger logger = LoggerFactory.getLogger(CachedApiCall.class);
 
@@ -18,6 +23,7 @@ public class CachedApiCall<T> {
     private final Duration cacheDuration;
     private final Duration waitOnFailure;
     private final Callable<ApiResponse<T>> updateCallback;
+    private final CachedApiResult<T> defaultValue;
     private volatile CachedApiResult<T> cachedValue = null;
 
 
@@ -28,14 +34,15 @@ public class CachedApiCall<T> {
      * @param cacheDuration How long after fetching the url should we fetch it again
      * @param waitOnFailure If the request fails, how long to wait before attempting the request again
      */
-    public CachedApiCall(HttpRequest req, Duration cacheDuration, Duration waitOnFailure, TypeToken<T> typeToken) {
-        this(req, cacheDuration, waitOnFailure, typeToken, ApiResponse::responseObj);
+    public CachedApiCall(HttpRequest req, Duration cacheDuration, Duration waitOnFailure, TypeToken<T> typeToken, T defaultValue) {
+        this(req, cacheDuration, waitOnFailure, typeToken, defaultValue, ApiResponse::responseObj);
     }
 
     public <U> CachedApiCall(HttpRequest req,
                              Duration cacheDuration,
                              Duration waitOnFailure,
                              TypeToken<U> typeToken,
+                             T defaultValue,
                              Function<ApiResponse<U>, T> transformer) {
         this.req = req;
         this.cacheDuration = cacheDuration;
@@ -44,10 +51,11 @@ public class CachedApiCall<T> {
             var apiResp = OrefApiClient.get(req, typeToken);
             return new ApiResponse<>(apiResp.response(), transformer.apply(apiResp));
         };
+        this.cachedValue = this.defaultValue = new CachedApiResult<>(Instant.EPOCH, -1, Instant.EPOCH, Instant.EPOCH, 0, defaultValue);
     }
 
     public CachedApiResult<T> getCachedValue() {
-        return Objects.requireNonNullElse(cachedValue, CachedApiResult.getUninitializedResult());
+        return Objects.requireNonNullElse(cachedValue, defaultValue);
     }
 
     public Duration getCacheDuration() {
@@ -58,7 +66,8 @@ public class CachedApiCall<T> {
         return cachedValue != null;
     }
 
-    public boolean update() throws InterruptedException {
+    public UpdateResult<T> update() throws InterruptedException {
+        long start = System.nanoTime();
         try {
             var res = updateCallback.call();
             var lastUpdate = Instant.now();
@@ -69,10 +78,10 @@ public class CachedApiCall<T> {
             // try again later
             logger.warn("Failure to fetch update {}", ex.getLocalizedMessage());
             logger.debug("Failure to fetch update", ex);
-            return false;
+            return new UpdateResult<>(false, null);
         }
-        logger.debug("Fetched {}", req);
-        return true;
+        logger.debug("Fetched {} in {}ns", req, System.nanoTime() - start);
+        return new UpdateResult<>(true, null);
     }
 
     public Duration getWaitOnFailure() {

@@ -1,5 +1,7 @@
 package com.github.pyckle.oref.integration.caching;
 
+import com.github.pyckle.oref.alerts.AlertsManager;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -15,11 +17,13 @@ import java.util.concurrent.ThreadLocalRandom;
  * This class uses a PriorityQueue to remove the next API call to make and inserts the
  */
 public class CacheUpdateThread extends Thread {
+    private final Runnable callbackOnUpdate;
     private final List<CachedApiCall<?>> apiCallList;
     private final CountDownLatch latch;
     private final PriorityQueue<ApiUpdateTask> priorityQueue = new PriorityQueue<>();
 
-    public CacheUpdateThread(List<CachedApiCall<?>> apiCallList) {
+    public CacheUpdateThread(Runnable callbackOnUpdate, List<CachedApiCall<?>> apiCallList) {
+        this.callbackOnUpdate = callbackOnUpdate;
         this.apiCallList = apiCallList;
         for (var api : apiCallList) {
             priorityQueue.offer(new ApiUpdateTask(api));
@@ -47,8 +51,8 @@ public class CacheUpdateThread extends Thread {
                     Thread.sleep(currTask.nextTimeToCall - now);
                 }
                 boolean wasInitialized = currTask.toRefresh.isInitializedYet();
-                boolean successfulUpdate = currTask.toRefresh.update();
-                if (successfulUpdate) {
+                var successfulUpdate = currTask.toRefresh.update();
+                if (successfulUpdate.success()) {
                     if (!wasInitialized) {
                         latch.countDown();
                     }
@@ -56,6 +60,7 @@ public class CacheUpdateThread extends Thread {
                     long nextTimeToCall = computeNextTimeToCall(currTask);
                     currTask.setNextTimeToCall(nextTimeToCall);
                     priorityQueue.add(currTask);
+                    callbackOnUpdate.run();
                 } else {
                     currTask.setNextTimeToCall(
                             System.currentTimeMillis() + currTask.toRefresh.getWaitOnFailure().toMillis());
@@ -80,7 +85,7 @@ public class CacheUpdateThread extends Thread {
                     Objects.requireNonNullElse(cachedValue.serverTimestamp(), cachedValue.localTimestamp());
 
             // add some randomness to multiple clients shooting the request into the server at the exact same time
-            int randomness = ThreadLocalRandom.current().nextInt(1_000) - 500;
+            int randomness = ThreadLocalRandom.current().nextInt(1_000) - 100;
             long computedNextTimeToCall =
                     generatedTimestamp.plusSeconds(cachedValue.maxAge()).toEpochMilli() + randomness;
 
