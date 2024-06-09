@@ -46,7 +46,8 @@ public class OrefApiCachingService {
     public OrefApiCachingService(OrefConfig orefConfig) {
         OrefApiUris uris = new OrefApiUris(orefConfig);
 
-        var alertStore = new AlertsRolloverStorage();
+        this.alertHistory = HistoryApiFactory.buildCachedHistory24Api(uris);
+        var alertStore = new AlertsRolloverStorage(this.alertHistory.getCachedValue()::getLastUpdated);
         this.alertApi = new CachedApiCall<>(
                 OrefHttpRequestFactory.buildRequest(uris.getAlertsUri(),
                         "Referer", "https://www.oref.org.il//12481-he/Pakar.aspx",
@@ -55,8 +56,6 @@ public class OrefApiCachingService {
                 Duration.ofSeconds(1),
                 new TypeToken<Alert>() {
                 }, List.of(), alertStore::addAlert);
-
-        this.alertHistory = HistoryApiFactory.buildCachedHistory24Api(uris);
 
         this.alertDescriptions = new CachedApiCall<>(
                 OrefHttpRequestFactory.buildRequest(uris.getLeftoversUri()),

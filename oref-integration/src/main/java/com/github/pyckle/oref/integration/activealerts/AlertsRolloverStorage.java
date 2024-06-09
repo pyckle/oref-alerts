@@ -15,6 +15,7 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * A store for arriving alerts that rolls over after some duration. This allows alerts to displayed longer during an
@@ -23,11 +24,10 @@ import java.util.Objects;
 public class AlertsRolloverStorage {
     private static final Logger logger = LoggerFactory.getLogger(AlertsRolloverStorage.class);
 
-    // package local for testing
     /**
-     * The max length of time an alert sits in the rolling alert queue
+     * The max length of time to overlap with the alert history
      */
-    static final Duration rolloverDuration = Duration.ofMinutes(3);
+    static final Duration overlapWithAlertHistory = Duration.ofMinutes(3);
 
     /**
      * The amount of time that must pass before an area is displayed again due to being present in multiple alerts. Need
@@ -42,6 +42,8 @@ public class AlertsRolloverStorage {
     // a linked hashmap to track which areas were recently alerted.
     private final LinkedHashMap<AlertedAreaWithCategory, Instant> rollingAlertDupePreventor = new LinkedHashMap<>();
 
+    private final Supplier<Instant> lastAlertHistoryUpdate;
+
     /**
      * The computed active alerts. Must *always* be immutible
      */
@@ -55,29 +57,36 @@ public class AlertsRolloverStorage {
     private Alert lastReceivedAlert;
 
     public AlertsRolloverStorage() {
+        this(Instant::now);
+    }
+
+    public AlertsRolloverStorage(Supplier<Instant> lastAlertHistoryUpdate) {
+        this.lastAlertHistoryUpdate = lastAlertHistoryUpdate;
         this.rollingAlerts = new ArrayDeque<>();
     }
 
     public List<ActiveAlert> addAlert(ApiResponse<Alert> alert) {
-        return this.addAlert(alert, Instant.now());
+        return this.addAlert(alert, Instant.now(), lastAlertHistoryUpdate.get());
     }
 
     /**
-     * @param alert the alert to add
-     * @param now   the current time
+     * @param alert                  the alert to add
+     * @param now                    The current time - used to avoid duplicate alerts for the same area
+     * @param lastAlertHistoryUpdate the last time the alert history was updated. Used to clean stale events that have
+     *                               already been received by the history service.
      * @return the current list of alerts
      */
-    public List<ActiveAlert> addAlert(ApiResponse<Alert> alert, Instant now) {
+    public List<ActiveAlert> addAlert(ApiResponse<Alert> alert, Instant now, Instant lastAlertHistoryUpdate) {
         boolean mutatedAlerts = false;
 
         // Remove old alerts first in the unlikely case that Pekudei Oref is sending the same alert for over the
         // rollover duration. Probably never occurs, but better to read and display in this strange case.
-        mutatedAlerts |= removeOldAlerts(now);
+        mutatedAlerts |= removeOldAlerts(lastAlertHistoryUpdate);
 
         // note that this does not change whether we mutated alerts.
         cleanupRepeatPreventorMap(now);
 
-        mutatedAlerts |= addAlertIfNew(alert.responseObj(), now);
+        mutatedAlerts |= addAlertIfNew(alert.responseObj(), lastAlertHistoryUpdate);
 
         if (mutatedAlerts) {
             updateActiveAlerts();
@@ -125,8 +134,8 @@ public class AlertsRolloverStorage {
         return newlyAlertedAreas;
     }
 
-    private boolean removeOldAlerts(Instant now) {
-        Instant expirationTime = now.minus(rolloverDuration);
+    private boolean removeOldAlerts(Instant lastAlertHistoryUpdate) {
+        Instant expirationTime = lastAlertHistoryUpdate.minus(overlapWithAlertHistory);
         boolean mutatedAlerts = false;
         // cleanup rolling alerts deque
         while (!rollingAlerts.isEmpty() &&

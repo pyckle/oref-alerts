@@ -20,20 +20,12 @@ public record CachedApiResult<T>(Instant localTimestamp,
                                  Instant lastModified,
                                  long maxAge,
                                  T retrievedValue) {
-    // a default value for initialization to avoid ugly Null Pointer checks.
-    private static final CachedApiResult<?> UNINITIALIZED_RESULT =
-            new CachedApiResult<>(Instant.EPOCH, -1, Instant.EPOCH, Instant.EPOCH, 0, null);
 
     private static final Logger logger = LoggerFactory.getLogger(DistrictStore.class);
     private static final String LAST_MODIFIED_HEADER = "Last-Modified";
     private static final String SERVER_TIMESTAMP = "Date";
     private static final String CACHE_CONTROL = "Cache-Control";
     private static final Pattern MAX_AGE_PATTERN = Pattern.compile("max-age=(\\d{1,18})");
-
-    @SuppressWarnings("unchecked")
-    public static <T> CachedApiResult<T> getUninitializedResult() {
-        return (CachedApiResult<T>) UNINITIALIZED_RESULT;
-    }
 
     public static <T> CachedApiResult<T> buildCachedApiResult(Instant localTime,
                                                               HttpResponse<?> response,
@@ -77,6 +69,16 @@ public record CachedApiResult<T>(Instant localTimestamp,
         return null;
     }
 
+    /**
+     * Get the last time this API was updated. This call goes in order of preference of what is available:
+     * <pre>
+     * 1) Last Modified HTTP header.
+     * 2) Remote Server Time
+     * 3) Time last response was received
+     * </pre>
+     *
+     * @return
+     */
     public Instant getLastUpdated() {
         // prefer the last modified time if present, if not, server timestamp, otherwise local time.
         return Objects.requireNonNullElse(this.lastModified(),
