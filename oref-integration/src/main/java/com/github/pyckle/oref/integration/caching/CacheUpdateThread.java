@@ -1,7 +1,5 @@
 package com.github.pyckle.oref.integration.caching;
 
-import com.github.pyckle.oref.alerts.AlertsManager;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -50,10 +48,10 @@ public class CacheUpdateThread extends Thread {
                 if (now < currTask.nextTimeToCall) {
                     Thread.sleep(currTask.nextTimeToCall - now);
                 }
-                boolean wasInitialized = currTask.toRefresh.isInitializedYet();
-                var successfulUpdate = currTask.toRefresh.update();
+                boolean wasInitialized = currTask.toRefresh.isInitialized();
+                UpdateResult successfulUpdate = currTask.toRefresh.update();
                 if (successfulUpdate.success()) {
-                    if (!wasInitialized) {
+                    if (!wasInitialized && latch.getCount() > 0) {
                         latch.countDown();
                     }
                     // update timestamp
@@ -65,6 +63,11 @@ public class CacheUpdateThread extends Thread {
                     currTask.setNextTimeToCall(
                             System.currentTimeMillis() + currTask.toRefresh.getWaitOnFailure().toMillis());
                     priorityQueue.add(currTask);
+                }
+
+                // run all chain updates, but don't schedule.
+                while (successfulUpdate.success() && successfulUpdate.hasNextCallToTrigger()) {
+                    successfulUpdate = successfulUpdate.nextCallToTrigger().update();
                 }
             } catch (InterruptedException ex) {
                 // exit - we're done!

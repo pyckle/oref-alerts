@@ -73,13 +73,14 @@ public class PekudeiOrefView {
 
         // if the alert last retrieved date changed but the alert is identical, update only the last time alerts
         // were fetched, no need to update anything else
-        // note if we add colors to the active alerts we'll need to update that
+        // note: colors for active alerts are not updated until they are fetched from history API or new alerts arrive
+        // this seems like a bug.
         boolean alertsHaveNotChanged = alertStatus.getAlerts().equals(status.getAlerts());
         this.alertStatus = status;
         if (alertsHaveNotChanged) {
             if (!this.infoLabels.isEmpty()) {
                 JLabel updateTimeStamp = this.infoLabels.get(0);
-                String alertUpdatedStr = getAlertUpdatedStr(activeAlertThreshold);
+                String alertUpdatedStr = getAlertUpdatedStr();
                 updateTimeStamp.setText(alertUpdatedStr);
                 updateTimeStamp.repaint();
             }
@@ -97,7 +98,7 @@ public class PekudeiOrefView {
         GridPlaceTracker tracker;
         if (!alerts.isEmpty()) {
             Font f = getFont(orefConfig.getMinFontSize(), true);
-            int maxAlertWidth = maxGroupedAlertTitle(activeAlertThreshold, alerts, f);
+            int maxAlertWidth = maxGroupedAlertTitle(alerts, f);
             tracker = new GridPlaceTracker(this.maxWidth / maxAlertWidth);
 
             setAlertUpdateStatus(activeAlertThreshold, tracker);
@@ -118,6 +119,7 @@ public class PekudeiOrefView {
                     break;
 
                 boolean isActive = alertDetails.remoteTimestamp().isAfter(activeAlertThreshold);
+                boolean isDrill = alertDetails.isDrill();
 
                 String groupedLocs = "";
                 for (String loc : alertDetails.locations()) {
@@ -126,7 +128,7 @@ public class PekudeiOrefView {
                     if (nextLocFits) {
                         groupedLocs = newGroupedLocs;
                     } else {
-                        addNextCellToPanel(tracker, false, areaColor(isActive), groupedLocs);
+                        addNextCellToPanel(tracker, false, areaColor(isDrill, isActive), groupedLocs);
 
                         if (tracker.isDone())
                             break DONE_WITH_ALERTS;
@@ -135,7 +137,7 @@ public class PekudeiOrefView {
                     }
                 }
                 if (!groupedLocs.isEmpty())
-                    addNextCellToPanel(tracker, false, areaColor(isActive), groupedLocs);
+                    addNextCellToPanel(tracker, false, areaColor(isDrill, isActive), groupedLocs);
             }
         } else {
             tracker = new GridPlaceTracker(1);
@@ -143,12 +145,11 @@ public class PekudeiOrefView {
         }
         panel.revalidate();
         panel.repaint();
-
-        // as we added different strings, we may need a different font size
-        //internalTriggerResize(tracker.numColsUsed(), tracker.getRowsUsed());
     }
 
-    private static Color areaColor(boolean isActive) {
+    private static Color areaColor(boolean isDrill, boolean isActive) {
+        if (isDrill)
+            return Color.CYAN;
         return isActive ? Color.RED : Color.YELLOW;
     }
 
@@ -160,8 +161,8 @@ public class PekudeiOrefView {
         return alertDetails.remoteTimestamp().toLocalTime().toString() + ' ' + alertDetails.translatedCategory();
     }
 
-    private int maxGroupedAlertTitle(LocalDateTime activeThreshold, List<AlertDetails> alertDetails, Font f) {
-        int ret = ResizeUtils.getWidthInPx(getAlertUpdatedStr(activeThreshold), this.panel.getGraphics(), f);
+    private int maxGroupedAlertTitle(List<AlertDetails> alertDetails, Font f) {
+        int ret = ResizeUtils.getWidthInPx(getAlertUpdatedStr(), this.panel.getGraphics(), f);
         for (var alertDetail : alertDetails) {
             ret = Math.max(ret, ResizeUtils.getWidthInPx(getGroupedAlertTitle(alertDetail), this.panel.getGraphics(), f));
             ret = Math.max(ret, ResizeUtils.getWidthInPx(getDateLabel(alertDetail), this.panel.getGraphics(), f));
@@ -179,14 +180,11 @@ public class PekudeiOrefView {
     }
 
     private void setAlertUpdateStatus(LocalDateTime activeThreshold, GridPlaceTracker tracker) {
-        if (hasAlert(activeThreshold)) {
-            addNextCellToPanel(tracker, true, Color.RED, getAlertUpdatedStr(activeThreshold));
-        } else {
-            addNextCellToPanel(tracker, true, Color.WHITE, getAlertUpdatedStr(activeThreshold));
-        }
+        Color color = hasAlert(activeThreshold) ? Color.RED : Color.WHITE;
+        addNextCellToPanel(tracker, true, color, getAlertUpdatedStr());
     }
 
-    private String getAlertUpdatedStr(LocalDateTime threshold) {
+    private String getAlertUpdatedStr() {
         String lastRetrievedDateStr = OrefDateTimeUtils.formatTimeShort(alertStatus.getLastUpdate());
         return "Updated: " + lastRetrievedDateStr;
     }

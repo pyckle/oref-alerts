@@ -86,7 +86,7 @@ public class AlertsRolloverStorage {
         // note that this does not change whether we mutated alerts.
         cleanupRepeatPreventorMap(now);
 
-        mutatedAlerts |= addAlertIfNew(alert.responseObj(), lastAlertHistoryUpdate);
+        mutatedAlerts |= addAlertIfNew(alert.responseObj(), now);
 
         if (mutatedAlerts) {
             updateActiveAlerts();

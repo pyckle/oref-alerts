@@ -24,7 +24,7 @@ public class CachedApiCall<T> {
     private final Duration waitOnFailure;
     private final Callable<ApiResponse<T>> updateCallback;
     private final CachedApiResult<T> defaultValue;
-    private volatile CachedApiResult<T> cachedValue = null;
+    private volatile CachedApiResult<T> cachedValue;
 
 
     /**
@@ -62,11 +62,11 @@ public class CachedApiCall<T> {
         return cacheDuration;
     }
 
-    public boolean isInitializedYet() {
-        return cachedValue != null;
+    public boolean isInitialized() {
+        return cachedValue != defaultValue;
     }
 
-    public UpdateResult<T> update() throws InterruptedException {
+    public UpdateResult update() throws InterruptedException {
         long start = System.nanoTime();
         try {
             var res = updateCallback.call();
@@ -78,10 +78,10 @@ public class CachedApiCall<T> {
             // try again later
             logger.warn("Failure to fetch update {}", ex.getLocalizedMessage());
             logger.debug("Failure to fetch update", ex);
-            return new UpdateResult<>(false, null);
+            return new UpdateResult(false, null);
         }
-        logger.debug("Fetched {} in {}ns", req, System.nanoTime() - start);
-        return new UpdateResult<>(true, null);
+        logger.debug("Fetched {} in {}", req, Duration.ofNanos(System.nanoTime() - start));
+        return new UpdateResult(true, null);
     }
 
     public Duration getWaitOnFailure() {

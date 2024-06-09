@@ -1,7 +1,6 @@
 package com.github.pyckle.oref.integration.caching;
 
 import com.github.pyckle.oref.alerts.AlertsManager;
-import com.github.pyckle.oref.alerts.details.AlertDetails;
 import com.github.pyckle.oref.integration.activealerts.ActiveAlert;
 import com.github.pyckle.oref.integration.activealerts.AlertsRolloverStorage;
 import com.github.pyckle.oref.integration.config.OrefApiUris;
@@ -14,19 +13,19 @@ import com.github.pyckle.oref.integration.dto.Category;
 import com.github.pyckle.oref.integration.dto.District;
 import com.github.pyckle.oref.integration.dto.HistoryEventWithParsedDates;
 import com.github.pyckle.oref.integration.dto.LeftoverAlertDescription;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.List;
 
 /**
  * A service that stores caching
  */
 public class OrefApiCachingService {
+    private static final Logger logger = LoggerFactory.getLogger(OrefApiCachingService.class);
 
     // these are the APIs that are used to actively check current alerts
     private final CachedApiCall<List<ActiveAlert>> alertApi;
@@ -55,7 +54,20 @@ public class OrefApiCachingService {
                 Duration.ofSeconds(2),
                 Duration.ofSeconds(1),
                 new TypeToken<Alert>() {
-                }, List.of(), alertStore::addAlert);
+                }, List.of(), alertStore::addAlert) {
+            @Override
+            public UpdateResult update() throws InterruptedException {
+                boolean wasInitialized = this.isInitialized();
+                Instant priorUpdateTime = this.getCachedValue().getLastUpdated();
+                var ret = super.update();
+                if (wasInitialized && ret.success() && priorUpdateTime.plusSeconds(15).isBefore(this.getCachedValue().getLastUpdated())) {
+                    logger.warn("Gap in Alert update - triggering call to history to get current info {} {}",
+                            priorUpdateTime, this.getCachedValue().getLastUpdated());
+                    return new UpdateResult(true, alertHistory);
+                }
+                return ret;
+            }
+        };
 
         this.alertDescriptions = new CachedApiCall<>(
                 OrefHttpRequestFactory.buildRequest(uris.getLeftoversUri()),
