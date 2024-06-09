@@ -51,6 +51,7 @@ public class AlertDetailsFactory {
         DistrictStore districtStore = cachingService.getDistrictApi().retrievedValue();
         List<String> translatedAreas = areasHeb.stream()
                 .map(districtStore::getTranslationFromHebrewLabel)
+                .sorted()
                 .toList();
         return translatedAreas;
     }
