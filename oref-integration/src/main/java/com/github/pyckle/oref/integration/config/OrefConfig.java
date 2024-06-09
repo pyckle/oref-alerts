@@ -6,8 +6,8 @@ import java.util.Set;
 public class OrefConfig {
     public static final String ROOT_PROP = "oref";
     private static final String DEFAULT_ENABLED = "true";
-    public static final String MIN_FONT = "min_font_size";
-    private static final String DEFAULT_MIN_FONT = "16";
+    public static final String FONT_SIZE = "font_size";
+    private static final String DEFAULT_FONT_SIZE = "16";
     public static final String LANG = "lang";
     private static final String DEFAULT_LANG = "he";
 
@@ -17,7 +17,7 @@ public class OrefConfig {
 
     public OrefConfig(Properties properties) {
         this.isEnabled = Boolean.parseBoolean(getProperty(properties, "", DEFAULT_ENABLED));
-        this.minFontSize = Integer.parseInt(getProperty(properties, MIN_FONT, DEFAULT_MIN_FONT));
+        this.minFontSize = Integer.parseInt(getProperty(properties, FONT_SIZE, DEFAULT_FONT_SIZE));
         this.lang = getProperty(properties, LANG, DEFAULT_LANG);
     }
 
