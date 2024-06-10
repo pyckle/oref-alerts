@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A service that stores caching
@@ -58,14 +59,22 @@ public class OrefApiCachingService {
             @Override
             public UpdateResult update() throws InterruptedException {
                 boolean wasInitialized = this.isInitialized();
-                Instant priorUpdateTime = this.getCachedValue().getLastUpdated();
+                Instant priorFetchedTimestamp = getLastFetched();
                 var ret = super.update();
-                if (wasInitialized && ret.success() && priorUpdateTime.plusSeconds(15).isBefore(this.getCachedValue().getLastUpdated())) {
-                    logger.warn("Gap in Alert update - triggering call to history to get current info {} {}",
-                            priorUpdateTime, this.getCachedValue().getLastUpdated());
+                if (wasInitialized && ret.success() && largeGapInUpdate(priorFetchedTimestamp)) {
+                    logger.warn("Gap in Alert update - triggering call to history to ensure info is current {} {}",
+                            priorFetchedTimestamp, getLastFetched());
                     return new UpdateResult(true, alertHistory);
                 }
                 return ret;
+            }
+
+            private boolean largeGapInUpdate(Instant priorFetchedTimestamp) {
+                return priorFetchedTimestamp.plusSeconds(20).isBefore(getLastFetched());
+            }
+
+            private Instant getLastFetched() {
+                return this.getCachedValue().getLastFetched();
             }
         };
 

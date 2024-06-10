@@ -35,6 +35,7 @@ public class PekudeiOrefView {
     private final OrefApiCachingService orefApiCachingService;
     private final AlertsManager alertsManager;
     private AlertStatus alertStatus;
+    private boolean activeAlertsDrawn = false;
 
     private int maxHeight;
     private int maxWidth;
@@ -73,11 +74,10 @@ public class PekudeiOrefView {
 
         // if the alert last retrieved date changed but the alert is identical, update only the last time alerts
         // were fetched, no need to update anything else
-        // note: colors for active alerts are not updated until they are fetched from history API or new alerts arrive
-        // this seems like a bug.
         boolean alertsHaveNotChanged = alertStatus.getAlerts().equals(status.getAlerts());
+        boolean activeAlertsNotChanged = hasAlert(activeAlertThreshold) == activeAlertsDrawn;
         this.alertStatus = status;
-        if (alertsHaveNotChanged) {
+        if (alertsHaveNotChanged && activeAlertsNotChanged) {
             if (!this.infoLabels.isEmpty()) {
                 JLabel updateTimeStamp = this.infoLabels.get(0);
                 String alertUpdatedStr = getAlertUpdatedStr();
@@ -92,6 +92,7 @@ public class PekudeiOrefView {
 
     private void rewriteAlerts(LocalDateTime activeAlertThreshold) {
         panel.removeAll();
+        activeAlertsDrawn = false;
         infoLabels.clear();
 
         var alerts = alertStatus.getAlerts();
@@ -123,6 +124,7 @@ public class PekudeiOrefView {
 
                 String groupedLocs = "";
                 for (String loc : alertDetails.locations()) {
+                    activeAlertsDrawn |= isActive;
                     String newGroupedLocs = groupedLocs + (groupedLocs.isEmpty() ? "" : ", ") + loc;
                     boolean nextLocFits = maxAlertWidth >= ResizeUtils.getWidthInPx(newGroupedLocs, this.panel.getGraphics(), f);
                     if (nextLocFits) {

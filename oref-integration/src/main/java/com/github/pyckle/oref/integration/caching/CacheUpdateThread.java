@@ -58,7 +58,7 @@ public class CacheUpdateThread extends Thread {
                     long nextTimeToCall = computeNextTimeToCall(currTask);
                     currTask.setNextTimeToCall(nextTimeToCall);
                     priorityQueue.add(currTask);
-                    callbackOnUpdate.run();
+                    completedUpdateCallback();
                 } else {
                     currTask.setNextTimeToCall(
                             System.currentTimeMillis() + currTask.toRefresh.getWaitOnFailure().toMillis());
@@ -68,6 +68,8 @@ public class CacheUpdateThread extends Thread {
                 // run all chain updates, but don't schedule.
                 while (successfulUpdate.success() && successfulUpdate.hasNextCallToTrigger()) {
                     successfulUpdate = successfulUpdate.nextCallToTrigger().update();
+                    if (successfulUpdate.success())
+                        completedUpdateCallback();
                 }
             } catch (InterruptedException ex) {
                 // exit - we're done!
@@ -75,6 +77,10 @@ public class CacheUpdateThread extends Thread {
                 return;
             }
         }
+    }
+
+    private void completedUpdateCallback() {
+        callbackOnUpdate.run();
     }
 
     private static long computeNextTimeToCall(ApiUpdateTask currTask) {

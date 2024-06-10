@@ -77,11 +77,24 @@ public record CachedApiResult<T>(Instant localTimestamp,
      * 3) Time last response was received
      * </pre>
      *
-     * @return
+     * @return last updated time
      */
     public Instant getLastUpdated() {
         // prefer the last modified time if present, if not, server timestamp, otherwise local time.
-        return Objects.requireNonNullElse(this.lastModified(),
-                Objects.requireNonNullElse(this.serverTimestamp(), this.localTimestamp()));
+        return Objects.requireNonNullElse(this.lastModified(), getLastFetched());
+    }
+
+
+    /**
+     * Get the last time this API was fetched.
+     * <pre>
+     * 1) Remote Server Time
+     * 2) Time last response was received
+     * </pre>
+     *
+     * @return
+     */
+    public Instant getLastFetched() {
+        return Objects.requireNonNullElse(this.serverTimestamp(), this.localTimestamp());
     }
 }
