@@ -67,12 +67,13 @@ public class AlertsManager {
         for (AlertDetails activeAlert : activeAlerts) {
             // overlap logic probably isn't perfect - may duplicate in some scenarios. Need to think about this.
             if (firstAlertInHistory == null || firstPossibleCollisionTime.isBefore(activeAlert.remoteTimestamp()) ||
-                    (maxOverlapTime.isAfter(activeAlert.remoteTimestamp()) && !firstHistoryLocations.containsAll(activeAlert.locationsHeb()))) {
+                    (maxOverlapTime.isBefore(activeAlert.remoteTimestamp()) && !firstHistoryLocations.containsAll(activeAlert.locationsHeb()))) {
                 ret.add(activeAlert);
             } else {
                 break;
             }
         }
+
         ret.addAll(alert24Hours);
         ret.addAll(historicalAlerts);
 
@@ -107,7 +108,7 @@ public class AlertsManager {
             if (category == ah.category() && groupedDateTime.equals(currDateTime)) {
                 alertedAreas.add(ah.data());
             } else {
-                addAlertDetails(false, alertedAreas, category, categoryHeb, ret, alertHistoryRes.getLastUpdated(), groupedDateTime);
+                addAlertDetails(false, alertedAreas, category, categoryHeb, ret, alertHistoryRes.getLastFetched(), groupedDateTime);
                 category = ah.category();
                 categoryHeb = ah.title();
                 groupedDateTime = currDateTime;
@@ -115,15 +116,16 @@ public class AlertsManager {
                 alertedAreas.add(ah.data());
             }
         }
-        addAlertDetails(false, alertedAreas, category, categoryHeb, ret, alertHistoryRes.getLastUpdated(), groupedDateTime);
+        addAlertDetails(false, alertedAreas, category, categoryHeb, ret, alertHistoryRes.getLastFetched(), groupedDateTime);
         return ret;
     }
 
-    private void addAlertDetails(boolean historicalEvent, List<String> alertedAreas, int category, String categoryHeb, List<AlertDetails> ret,
-                                 Instant lastUpdated, LocalDateTime groupedDateTime) {
+    private void addAlertDetails(boolean historicalEvent, List<String> alertedAreas, int category, String categoryHeb,
+                                 List<AlertDetails> alertDetails, Instant receivedTimestamp, LocalDateTime groupedDateTime) {
         if (!alertedAreas.isEmpty()) {
             String translatedCategory = orefApiCachingService.getAlertDescriptions().retrievedValue().getAlertStringFromCatId(category, categoryHeb);
-            ret.add(alertDetailsFactory.buildAlertDetailsFromHistory(historicalEvent, AlertCategories.INSTANCE.isDrill(category), translatedCategory, categoryHeb, lastUpdated, groupedDateTime, alertedAreas));
+            alertDetails.add(alertDetailsFactory.buildAlertDetailsFromHistory(historicalEvent, AlertCategories.INSTANCE.isDrill(category),
+                    translatedCategory, categoryHeb, receivedTimestamp, groupedDateTime, alertedAreas));
         }
     }
 
@@ -146,7 +148,7 @@ public class AlertsManager {
                 if (category == event.category() && groupedDateTime.equals(eventDateTime)) {
                     alertedAreas.add(event.data());
                 } else {
-                    addAlertDetails(true, alertedAreas, category, translatedCategory, ret, history.getLastUpdated(), groupedDateTime);
+                    addAlertDetails(true, alertedAreas, category, translatedCategory, ret, history.getLastFetched(), groupedDateTime);
                     category = event.category();
                     translatedCategory = event.category_desc();
                     groupedDateTime = eventDateTime;
@@ -155,7 +157,7 @@ public class AlertsManager {
                 }
             }
         }
-        addAlertDetails(true, alertedAreas, category, translatedCategory, ret, history.getLastUpdated(), groupedDateTime);
+        addAlertDetails(true, alertedAreas, category, translatedCategory, ret, history.getLastFetched(), groupedDateTime);
         return ret;
     }
 }
