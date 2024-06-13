@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
 
 /**
@@ -44,7 +45,17 @@ public class OrefDateTimeUtils {
      * @return the formatted string
      */
     public static String formatTimeShort(Instant instant) {
-        return shortTimeFormatter.format(instant.atZone(ISRAEL_ZONE));
+        return formatTimeShort(instant.atZone(ISRAEL_ZONE));
+    }
+
+    /**
+     * Format the Instant in local Israel time
+     *
+     * @param instant the instant to format
+     * @return the formatted string
+     */
+    public static String formatTimeShort(TemporalAccessor temporalAccessor) {
+        return shortTimeFormatter.format(temporalAccessor);
     }
 
     /**

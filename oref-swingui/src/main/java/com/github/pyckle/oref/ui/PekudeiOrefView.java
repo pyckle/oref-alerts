@@ -160,7 +160,7 @@ public class PekudeiOrefView {
     }
 
     private static String getGroupedAlertTitle(AlertDetails alertDetails) {
-        return alertDetails.remoteTimestamp().toLocalTime().toString() + ' ' + alertDetails.translatedCategory();
+        return OrefDateTimeUtils.formatTimeShort(alertDetails.remoteTimestamp()) + ' ' + alertDetails.translatedCategory();
     }
 
     private int maxGroupedAlertTitle(List<AlertDetails> alertDetails, Font f) {

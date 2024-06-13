@@ -9,6 +9,7 @@ import com.github.pyckle.oref.integration.caching.CachedApiResult;
 import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;
+import com.github.pyckle.oref.integration.dto.Alert;
 import com.github.pyckle.oref.integration.dto.AlertHistory;
 import com.github.pyckle.oref.integration.dto.HistoryEventWithParsedDates;
 import org.slf4j.Logger;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -58,19 +60,13 @@ public class AlertsManager {
         List<AlertDetails> alert24Hours = getAlertHistoryAsDetails();
         List<AlertDetails> historicalAlerts = getHistoricalAlerts(alert24Hours.isEmpty() ? LocalDateTime.MAX : alert24Hours.get(alert24Hours.size() - 1).remoteTimestamp());
 
-        AlertDetails firstAlertInHistory = alert24Hours.isEmpty() ? null : alert24Hours.get(0);
         List<AlertDetails> ret = new ArrayList<>(activeAlerts.size() + alert24Hours.size() + historicalAlerts.size());
 
-        LocalDateTime firstPossibleCollisionTime = firstAlertInHistory == null ? LocalDateTime.MIN : firstAlertInHistory.remoteTimestamp().plusSeconds(10);
-        LocalDateTime maxOverlapTime = firstAlertInHistory == null ? LocalDateTime.MIN : firstAlertInHistory.remoteTimestamp().minusSeconds(10);
-        Set<String> firstHistoryLocations = firstAlertInHistory == null ? Set.of() : Set.copyOf(firstAlertInHistory.locationsHeb());
+        OverlapChecker overlapChecker = new OverlapChecker(alert24Hours);
         for (AlertDetails activeAlert : activeAlerts) {
-            // overlap logic probably isn't perfect - may duplicate in some scenarios. Need to think about this.
-            if (firstAlertInHistory == null || firstPossibleCollisionTime.isBefore(activeAlert.remoteTimestamp()) ||
-                    (maxOverlapTime.isBefore(activeAlert.remoteTimestamp()) && !firstHistoryLocations.containsAll(activeAlert.locationsHeb()))) {
+            AlertDetails toAdd = overlapChecker.preventOverlap(activeAlert);
+            if (toAdd != null) {
                 ret.add(activeAlert);
-            } else {
-                break;
             }
         }
 
