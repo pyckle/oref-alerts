@@ -8,7 +8,7 @@ An Unofficial Java Library and Swing UI to programmically access and display Ale
     - Programmatically merge output of multiple Oref REST APIs
     - Automatically update information asynchronously to program execution
 * A SwingUI that displays recent historical alerts and regularly updates with new alerts
-* Lightweight enough to run on a Raspberry Pi 3A+ with 512 MB of RAM and render at 1080p
+* Lightweight - must run on a Raspberry Pi 3A+ (512 MB RAM) and render at 1080p
 
 ## Features
 
@@ -22,6 +22,7 @@ An Unofficial Java Library and Swing UI to programmically access and display Ale
 
 * SwingUI to display alerts
     - Designed to work well on wide screens, not narrow phones
+    - Autoresize number of alerts displayed based on window size
     - Shows last updated time from last-modified HTTP Response Header (rather than local or server timestamp)
     - Supports Hebrew, English, Russian, and Arabic
     - Minimalistic
@@ -34,14 +35,18 @@ An Unofficial Java Library and Swing UI to programmically access and display Ale
 * More automated tests are necessary
 * Support fullscreen
 * Support multiple monitors
-* Add visible warning if updates fail to fetch
+* Add more visible warning:
+  * If updates fail to fetch
+  * On specific area(s)
+* Better documentation
 
 ## Build Instructions
 
 ### Requirements
 
-Java 17+
-A recent version of Maven
+* Java 17+
+* A recent version of Maven
+* Access to Pekudei Oref (limited to Israel IPs)
 
 ### Build Instructions
 
