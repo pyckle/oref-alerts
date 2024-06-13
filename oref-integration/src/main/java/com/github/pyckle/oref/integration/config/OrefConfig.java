@@ -3,6 +3,9 @@ package com.github.pyckle.oref.integration.config;
 import java.util.Properties;
 import java.util.Set;
 
+/**
+ * Configuration of Pekudei Oref View
+ */
 public class OrefConfig {
     public static final String ROOT_PROP = "oref";
     private static final String DEFAULT_ENABLED = "true";

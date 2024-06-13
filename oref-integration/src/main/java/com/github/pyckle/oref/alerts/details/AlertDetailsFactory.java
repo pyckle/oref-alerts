@@ -3,16 +3,22 @@ package com.github.pyckle.oref.alerts.details;
 import com.github.pyckle.oref.alerts.categories.AlertCategories;
 import com.github.pyckle.oref.alerts.categories.dto.AlertCategory;
 import com.github.pyckle.oref.integration.activealerts.ActiveAlert;
+import com.github.pyckle.oref.integration.activealerts.AlertsRolloverStorage;
+import com.github.pyckle.oref.integration.activealerts.FileTimeToInstantUtil;
 import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;
 import com.github.pyckle.oref.integration.translationstores.DistrictStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class AlertDetailsFactory {
+    private static final Logger logger = LoggerFactory.getLogger(AlertDetailsFactory.class);
+
     private final OrefConfig orefConfig;
     private final OrefApiCachingService cachingService;
 
@@ -22,8 +28,7 @@ public class AlertDetailsFactory {
     }
 
     public AlertDetails buildAlertDetails(ActiveAlert alert) {
-        Instant decodedTimestamp = alert.alertTimestamps().getDecodedTimestamp();
-        LocalDateTime decodedDateTime = OrefDateTimeUtils.toLocalDateTime(decodedTimestamp);
+        LocalDateTime decodedDateTime = getRemoteTimestamp(alert);
 
         List<String> translatedAreas = translateAreas(alert.filteredAreasToDisplay());
         boolean isDrill = AlertCategories.INSTANCE.isDrill(alert.alertCategoryId());
@@ -31,6 +36,21 @@ public class AlertDetailsFactory {
         return new AlertDetails(AlertSource.ALERT, alert.alertTimestamps().getReceivedTimestamp(),
                 decodedDateTime, isDrill, alert.alertCategoryHeb(), translatedCategory,
                 translatedAreas, alert.filteredAreasToDisplay());
+    }
+
+    private static LocalDateTime getRemoteTimestamp(ActiveAlert alert) {
+        final Instant decodedTimestamp;
+
+        if (alert.alertTimestamps().successfullyDecodedTimestamp()) {
+            decodedTimestamp = alert.alertTimestamps().getDecodedTimestamp();
+        } else {
+            // In the event that we couldn't decode the remote timestamp for any reason, use the received timestamp
+            // We could use the last-modified or the server time http headers, but more plumbing is needed.
+            logger.debug("Unable to decode timestamp for alert {}. Falling back to received timestamp", alert);
+            decodedTimestamp = alert.alertTimestamps().getReceivedTimestamp();
+        }
+        LocalDateTime decodedDateTime = OrefDateTimeUtils.toLocalDateTime(decodedTimestamp);
+        return decodedDateTime;
     }
 
     private String translateCategory(String categoryId, String hebCat) {

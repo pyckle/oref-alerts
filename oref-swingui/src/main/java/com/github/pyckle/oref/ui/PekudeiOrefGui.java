@@ -6,13 +6,16 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.time.Instant;
 import java.util.Properties;
 
 public class PekudeiOrefGui {
+    private final Properties properties;
+
+    public PekudeiOrefGui(Properties properties) {
+        this.properties = properties;
+    }
+
     void createAndShowGUI() {
-        Properties properties = new Properties();
-        properties.setProperty(OrefConfig.ROOT_PROP + "." + OrefConfig.LANG, "he");
         PekudeiOrefView orefView = new PekudeiOrefView(new OrefConfig(properties));
 
         JFrame frame = new JFrame("Oref Dashboard");

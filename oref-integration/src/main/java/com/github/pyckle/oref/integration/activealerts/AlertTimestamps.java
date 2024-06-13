@@ -53,6 +53,13 @@ public class AlertTimestamps {
     }
 
     /**
+     * @return whether the remote timestamp was successfully decoded.
+     */
+    public boolean successfullyDecodedTimestamp() {
+        return !FileTimeToInstantUtil.UNKNOWN_DECODED_TIME.equals(decodedTimestamp);
+    }
+
+    /**
      * @return the timestamp that was decoded from the {@link Alert#id()} field
      */
     public Instant getDecodedTimestamp() {

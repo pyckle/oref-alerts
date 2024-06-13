@@ -6,6 +6,7 @@ import java.time.Instant;
  * Converts file time to Instant
  */
 public class FileTimeToInstantUtil {
+    public static final Instant UNKNOWN_DECODED_TIME = Instant.EPOCH;
     private static final long FILETIME_EPOCH_DIFF = 11644473600L;
 
 
@@ -19,11 +20,11 @@ public class FileTimeToInstantUtil {
 
             // if we get something before the epoch, something went wrong.
             if (Instant.EPOCH.isAfter(ret))
-                return Instant.EPOCH;
+                return UNKNOWN_DECODED_TIME;
 
             return ret;
         } catch (NumberFormatException e) {
-            return Instant.EPOCH;
+            return UNKNOWN_DECODED_TIME;
         }
     }
 
