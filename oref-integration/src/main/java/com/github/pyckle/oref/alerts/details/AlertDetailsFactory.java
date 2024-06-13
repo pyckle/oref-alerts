@@ -3,8 +3,6 @@ package com.github.pyckle.oref.alerts.details;
 import com.github.pyckle.oref.alerts.categories.AlertCategories;
 import com.github.pyckle.oref.alerts.categories.dto.AlertCategory;
 import com.github.pyckle.oref.integration.activealerts.ActiveAlert;
-import com.github.pyckle.oref.integration.activealerts.AlertsRolloverStorage;
-import com.github.pyckle.oref.integration.activealerts.FileTimeToInstantUtil;
 import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;

@@ -5,14 +5,14 @@ import com.github.pyckle.oref.integration.activealerts.ActiveAlert;
 import com.github.pyckle.oref.integration.activealerts.AlertsRolloverStorage;
 import com.github.pyckle.oref.integration.config.OrefApiUris;
 import com.github.pyckle.oref.integration.config.OrefConfig;
-import com.github.pyckle.oref.integration.translationstores.CategoryDescriptionStore;
-import com.github.pyckle.oref.integration.translationstores.DistrictStore;
 import com.github.pyckle.oref.integration.dto.Alert;
 import com.github.pyckle.oref.integration.dto.AlertHistory;
 import com.github.pyckle.oref.integration.dto.Category;
 import com.github.pyckle.oref.integration.dto.District;
 import com.github.pyckle.oref.integration.dto.HistoryEventWithParsedDates;
 import com.github.pyckle.oref.integration.dto.LeftoverAlertDescription;
+import com.github.pyckle.oref.integration.translationstores.CategoryDescriptionStore;
+import com.github.pyckle.oref.integration.translationstores.DistrictStore;
 import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * A service that stores caching

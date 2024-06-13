@@ -2,28 +2,20 @@ package com.github.pyckle.oref.ui;
 
 import com.github.pyckle.oref.alerts.AlertsManager;
 import com.github.pyckle.oref.alerts.details.AlertDetails;
-import com.github.pyckle.oref.integration.activealerts.ActiveAlert;
-import com.github.pyckle.oref.integration.activealerts.AlertTimestamps;
 import com.github.pyckle.oref.integration.caching.AlertStatus;
-import com.github.pyckle.oref.integration.caching.CachedApiResult;
 import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;
-import com.github.pyckle.oref.integration.translationstores.DistrictStore;
-import com.github.pyckle.oref.integration.dto.HistoryEventWithParsedDates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 
 public class PekudeiOrefView {
     private static final Logger logger = LoggerFactory.getLogger(PekudeiOrefView.class);
@@ -47,6 +39,11 @@ public class PekudeiOrefView {
         alertStatus = AlertsManager.emptyStatus();
         panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
+    }
+
+    private static int getWidthInPx(String text, Graphics g, Font f) {
+        FontMetrics fontMetrics = g.getFontMetrics(f);
+        return fontMetrics.stringWidth(text);
     }
 
     public JPanel getPanel() {
@@ -126,7 +123,7 @@ public class PekudeiOrefView {
                 for (String loc : alertDetails.locations()) {
                     activeAlertsDrawn |= isActive;
                     String newGroupedLocs = groupedLocs + (groupedLocs.isEmpty() ? "" : ", ") + loc;
-                    boolean nextLocFits = maxAlertWidth >= ResizeUtils.getWidthInPx(newGroupedLocs, this.panel.getGraphics(), f);
+                    boolean nextLocFits = maxAlertWidth >= getWidthInPx(newGroupedLocs, this.panel.getGraphics(), f);
                     if (nextLocFits) {
                         groupedLocs = newGroupedLocs;
                     } else {
@@ -164,10 +161,10 @@ public class PekudeiOrefView {
     }
 
     private int maxGroupedAlertTitle(List<AlertDetails> alertDetails, Font f) {
-        int ret = ResizeUtils.getWidthInPx(getAlertUpdatedStr(), this.panel.getGraphics(), f);
+        int ret = getWidthInPx(getAlertUpdatedStr(), this.panel.getGraphics(), f);
         for (var alertDetail : alertDetails) {
-            ret = Math.max(ret, ResizeUtils.getWidthInPx(getGroupedAlertTitle(alertDetail), this.panel.getGraphics(), f));
-            ret = Math.max(ret, ResizeUtils.getWidthInPx(getDateLabel(alertDetail), this.panel.getGraphics(), f));
+            ret = Math.max(ret, getWidthInPx(getGroupedAlertTitle(alertDetail), this.panel.getGraphics(), f));
+            ret = Math.max(ret, getWidthInPx(getDateLabel(alertDetail), this.panel.getGraphics(), f));
         }
         return ret + 16; // add pixels so text doesn't sit on each other
     }
@@ -201,39 +198,8 @@ public class PekudeiOrefView {
         rewriteAlerts(getActiveAlertThreshold());
     }
 
-    private void internalTriggerResize(int numUsedCols, int maxNumRows) {
-        if (this.infoLabels.isEmpty() || this.infoLabels.get(0).getText().isEmpty()) {
-            return;
-        }
-
-        final int maxLabelWidth = this.maxWidth / numUsedCols;
-        final int maxLabelHeight = this.maxHeight / maxNumRows;
-        Font newFont = findBiggestPossibleFont(maxLabelWidth, maxLabelHeight);
-        setNewFont(newFont.getSize());
-        this.panel.revalidate();
-        this.panel.repaint();
-    }
-
     private static LocalDateTime getActiveAlertThreshold() {
         return LocalDateTime.now().minusSeconds(180);
-    }
-
-    private Font findBiggestPossibleFont(int maxLabelWidth, int maxLabelHeight) {
-        Font newFont = infoLabels.get(0).getFont();
-        int maxFontSize = Integer.MAX_VALUE;
-        for (JLabel l : infoLabels) {
-            Font bestFontForRow = ResizeUtils.findBestFontSize(panel.getGraphics(), l.getFont(), l.getText(),
-                    maxLabelWidth, maxLabelHeight, maxFontSize);
-            if (bestFontForRow.getSize() < maxFontSize) {
-                newFont = bestFontForRow;
-                maxFontSize = newFont.getSize();
-            }
-        }
-        return newFont;
-    }
-
-    private void setNewFont(int fontSize) {
-        infoLabels.forEach(l -> l.setFont(ResizeUtils.cloneFont(l.getFont(), fontSize)));
     }
 
     private void addNextCellToPanel(GridPlaceTracker tracker, boolean isBold, Color color, String message) {
@@ -300,14 +266,6 @@ public class PekudeiOrefView {
 
         public int getCol() {
             return orefConfig.isRightToLeft() ? maxNumCols - col : col;
-        }
-
-        public int numColsUsed() {
-            return Math.max(1, row > 0 ? col + 1 : col);
-        }
-
-        public int getRowsUsed() {
-            return Math.max(1, rowsUsed);
         }
     }
 }

@@ -9,7 +9,6 @@ import com.github.pyckle.oref.integration.caching.CachedApiResult;
 import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;
-import com.github.pyckle.oref.integration.dto.Alert;
 import com.github.pyckle.oref.integration.dto.AlertHistory;
 import com.github.pyckle.oref.integration.dto.HistoryEventWithParsedDates;
 import org.slf4j.Logger;
@@ -20,9 +19,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * This manages all alerts from all APIs and ensures they're stitched together correctly.
