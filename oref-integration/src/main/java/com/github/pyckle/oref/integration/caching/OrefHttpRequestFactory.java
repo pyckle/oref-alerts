@@ -3,10 +3,13 @@ package com.github.pyckle.oref.integration.caching;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.time.Duration;
+import java.util.Arrays;
 
 public class OrefHttpRequestFactory {
     // timeout is set to 8 seconds in javascript in Oref Website
     private static final Duration callTimeout = Duration.ofMillis(8_000);
+    private static final String acceptEncodingHeader = "Accept-Encoding";
+    private static final String acceptEncodingGzip = "gzip";
 
     /**
      * Build a http GET request for the specified url
@@ -19,9 +22,25 @@ public class OrefHttpRequestFactory {
         var ret = HttpRequest.newBuilder()
                 .uri(uri)
                 .timeout(callTimeout);
-        if (headers.length > 0) {
-            ret.headers(headers);
-        }
+        String[] allHeaders = addAcceptEncodingGzip(headers);
+
+        ret.headers(allHeaders);
         return ret.build();
+    }
+
+    private static String[] addAcceptEncodingGzip(String[] headers) {
+        String[] allHeaders = null;
+
+        for (int i = 0; i < headers.length; i += 2) {
+            if (headers[i].equalsIgnoreCase(acceptEncodingHeader)) {
+                allHeaders = headers;
+            }
+        }
+        if (allHeaders == null) {
+            allHeaders = Arrays.copyOf(headers, headers.length + 2);
+            allHeaders[allHeaders.length - 2] = acceptEncodingHeader;
+            allHeaders[allHeaders.length - 1] = acceptEncodingGzip;
+        }
+        return allHeaders;
     }
 }

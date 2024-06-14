@@ -12,6 +12,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.zip.GZIPInputStream;
 
 public class OrefApiClient {
     private static final Logger logger = LoggerFactory.getLogger(OrefApiClient.class);
@@ -29,6 +30,8 @@ public class OrefApiClient {
             throw new RuntimeException("Unexpected Status Code " + httpResponse.statusCode());
         } else {
             is = httpResponse.body();
+            is = wrapWithGzip(httpResponse, is);
+
             T ret = gson.fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), typeToken);
 
             logger.debug("Request to {}: Response: {} {} {}", req, httpResponse.statusCode(), httpResponse.headers(), ret);
@@ -37,4 +40,15 @@ public class OrefApiClient {
         }
     }
 
+    private static InputStream wrapWithGzip(HttpResponse<InputStream> httpResponse, InputStream is) throws IOException {
+        var contentEncoding = httpResponse.headers().allValues("Content-Encoding");
+        if (!contentEncoding.isEmpty()) {
+            if (contentEncoding.size() == 1 && contentEncoding.get(0).equalsIgnoreCase("gzip")) {
+                is = new GZIPInputStream(is);
+            } else {
+                throw new IllegalStateException("Unknown content encoding " + contentEncoding);
+            }
+        }
+        return is;
+    }
 }
