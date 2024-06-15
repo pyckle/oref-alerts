@@ -33,7 +33,6 @@ An Unofficial Java Library and Swing UI to programmically access and display Ale
 ## TODO
 
 * More automated tests are necessary
-* Support fullscreen
 * Support multiple monitors
 * Add more visible warning:
   * If updates fail to fetch
@@ -59,12 +58,29 @@ If you want to change the language (Hebrew by default)
 <pre>java -jar ./oref-swingui/target/oref-swingui.jar en</pre>
 or make the font bigger
 <pre>java -jar ./oref-swingui/target/oref-swingui.jar 20 en</pre>
+To make it fullscreen on Linux, type the display number that should be fullscreen. `0` for example.
+To exit fullscreen, type `f`
+
+On Mac, maximize the application.
+
+Windows has not been tested, but in theory this application should be portable.
 
 ## Disclaimers
 
 This application is not intended as a substitute to adhering to Homefront Command's guidelines.
-It utilizes unofficial APIs and should **not** be relied upon for receiving live saving notifications.
+It should **not** be relied upon for receiving live saving notifications.
+
 **Always** follow official lifesaving instructions and procedures.
+
+This application relies upon undocumented and unofficial Pekudei Oref APIs. This project also integrates with
+API behavior that the official Web UI and other OSS projects do not integrate with. For example:
+* Timestamps are parsed from alert IDs and HTTP headers.
+* Refresh behavior is affected by HTTP cache headers. 
+ 
+While the author made efforts to ensure graceful fallback in the event that these parts of the API changes, testing
+has not been done. As such, while this library is more featureful than other integrations, it may also be less robust
+to API changes.
+
 
 THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
 NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO
