@@ -1,35 +1,35 @@
 package com.github.pyckle.oref.integration.translationstores;
 
-import com.github.pyckle.oref.integration.dto.LeftoverAlertDescription;
+import com.github.pyckle.oref.integration.dto.AlertTranslation;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class CategoryDescriptionStore {
-    private final Map<Integer, LeftoverAlertDescription> catIdToDescription;
-    private final Map<Integer, LeftoverAlertDescription> matIdToDescription;
+    private final Map<Integer, AlertTranslation> catIdToDescription;
+    private final Map<Integer, AlertTranslation> matIdToDescription;
 
-    public CategoryDescriptionStore(List<LeftoverAlertDescription> alertDescriptionList) {
+    public CategoryDescriptionStore(List<AlertTranslation> alertDescriptionList) {
         catIdToDescription = new HashMap<>();
         matIdToDescription = new HashMap<>();
-        for (LeftoverAlertDescription lad : alertDescriptionList) {
-            catIdToDescription.put(lad.category(), lad);
-            matIdToDescription.put(lad.matrixid(), lad);
+        for (AlertTranslation alertTranslation : alertDescriptionList) {
+            catIdToDescription.put(alertTranslation.catId(), alertTranslation);
+            matIdToDescription.put(alertTranslation.matrixCatId(), alertTranslation);
         }
     }
 
-    public String getAlertStringFromCatId(int cat, String defaultVal) {
-        return labelOrDefault(defaultVal, catIdToDescription.get(cat));
+    public String getAlertStringFromCatId(String lang, int cat, String defaultVal) {
+        return labelOrDefault(lang, defaultVal, catIdToDescription.get(cat));
     }
 
-    public String getAlertStringFromMatId(String cat, String defaultVal) {
-        if (isValidInteger(cat, defaultVal))
+    public String getAlertStringFromMatId(String lang, String cat, String defaultVal) {
+        if (isValidInteger(cat))
             return defaultVal;
-        return getAlertStringFromMatId(Integer.parseInt(cat), defaultVal);
+        return getAlertStringFromMatId(lang, Integer.parseInt(cat), defaultVal);
     }
 
-    private static boolean isValidInteger(String cat, String defaultVal) {
+    private static boolean isValidInteger(String cat) {
         if (cat.length() > 8)
             return true;
         for (int i = 0; i < cat.length(); i++) {
@@ -39,13 +39,13 @@ public class CategoryDescriptionStore {
         return false;
     }
 
-    public String getAlertStringFromMatId(int cat, String defaultVal) {
-        return labelOrDefault(defaultVal, matIdToDescription.get(cat));
+    public String getAlertStringFromMatId(String lang, int cat, String defaultVal) {
+        return labelOrDefault(lang, defaultVal, matIdToDescription.get(cat));
     }
 
-    private static String labelOrDefault(String defaultVal, LeftoverAlertDescription lad) {
-        if (lad == null)
+    private static String labelOrDefault(String lang, String defaultVal, AlertTranslation alertTranslation) {
+        if (alertTranslation == null)
             return defaultVal;
-        return lad.label();
+        return alertTranslation.title(lang, defaultVal);
     }
 }

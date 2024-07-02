@@ -4,6 +4,7 @@ import com.github.pyckle.oref.integration.config.OrefApiUris;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import org.junit.jupiter.api.Test;
 
+import java.util.Locale;
 import java.util.Properties;
 
 public class HistoryFetcherTest {

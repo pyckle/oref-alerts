@@ -120,19 +120,12 @@ public class AlertsManager {
     private void addAlertDetails(boolean historicalEvent, List<String> alertedAreas, int category, String categoryHeb,
                                  List<AlertDetails> alertDetails, Instant receivedTimestamp, LocalDateTime groupedDateTime) {
         if (!alertedAreas.isEmpty()) {
-            String translatedCategory = orefApiCachingService.getAlertDescriptions().retrievedValue().getAlertStringFromCatId(category, categoryHeb);
-            // alert descriptions service failed. Try alert categories
-            if (translatedCategory.equals(categoryHeb)) {
+            String translatedCategory = orefApiCachingService.getAlertDescriptions().retrievedValue().getAlertStringFromCatId(orefConfig.getLang(), category, categoryHeb);
 
-                // need to go from cat to matrix id:
-                int matCat = Integer.MIN_VALUE;
-                for (Category c : orefApiCachingService.getCategoriesApi().retrievedValue()) {
-                    if (c.id() == category) {
-                        matCat = c.matrix_id();
-                        break;
-                    }
-                }
-                translatedCategory = AlertCategories.INSTANCE.getAlertCategory(String.valueOf(matCat))
+            // alert descriptions service failed. Fallback to alert categories
+            if (translatedCategory.equals(categoryHeb)) {
+                int matId = orefApiCachingService.getCategoriesApi().retrievedValue().categoryToMatrixId(category);
+                translatedCategory = AlertCategories.INSTANCE.getAlertCategory(String.valueOf(matId))
                         .map(AlertCategory::alertName)
                         .map(mls -> mls.inLang(orefConfig.getLang(), categoryHeb))
                         .orElse(categoryHeb);

@@ -1,7 +1,6 @@
 package com.github.pyckle.oref.integration.config;
 
 import java.net.URI;
-import java.util.Locale;
 
 public class OrefApiUris {
     private static final String URI_BASE = "https://www.oref.org.il";
@@ -25,7 +24,7 @@ public class OrefApiUris {
     /**
      * Request to fetch translated directions of alerts
      */
-    public final URI leftoversUri;
+    public final URI translationsUri;
 
     /**
      * Request to fetch categories of alerts
@@ -42,11 +41,9 @@ public class OrefApiUris {
 
         alertsUri = URI.create(URI_BASE + "/warningMessages/alert/Alerts.json");
 
-        // this appears to be removed. Need to replace with something else
-        alertsHistoryUri = URI.create(URI_BASE_HISTORY + "warningMessages/alert/History/AlertsHistory.json");
+        alertsHistoryUri = URI.create(URI_BASE + "/warningMessages/alert/History/AlertsHistory.json");
 
-        // we use this for translation, need to move to: https://www.oref.org.il/alerts/alertsTranslation.json
-        leftoversUri = URI.create(URI_BASE + "/Leftovers/" + lang.toUpperCase(Locale.ENGLISH) + ".Leftovers.json");
+        translationsUri = URI.create(URI_BASE + "/alerts/alertsTranslation.json");
 
         // mode 1 is 1 day.
         // mode 2 is 1 week.
@@ -54,7 +51,6 @@ public class OrefApiUris {
         historyUri =
                 URI.create(URI_BASE_HISTORY + "/Shared/Ajax/GetAlarmsHistory.aspx?lang=he&mode=3");
 
-        // this appears to be removed. Need to replace with something else
         categoriesUri = URI.create(URI_BASE + "/alerts/alertCategories.json");
         districtsUri = URI.create(
                 URI_BASE_HISTORY + "/Shared/Ajax/GetDistricts.aspx?lang=" + lang);
@@ -69,8 +65,8 @@ public class OrefApiUris {
         return alertsHistoryUri;
     }
 
-    public URI getLeftoversUri() {
-        return leftoversUri;
+    public URI getTranslationsUri() {
+        return translationsUri;
     }
 
     public URI getHistoryUri() {

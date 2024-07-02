@@ -22,21 +22,24 @@ public class OrefApiClient {
     public static <T> ApiResponse<T> get(HttpRequest req, TypeToken<T> typeToken)
             throws IOException, InterruptedException {
         Gson gson = new Gson();
-        InputStream is;
 
         HttpResponse<InputStream> httpResponse = client.send(req, HttpResponse.BodyHandlers.ofInputStream());
-        if (httpResponse.statusCode() != SUCCESS_STATUS_CODE) {
-            logger.warn("Failed http request: {} {} {}", req.uri(), httpResponse.statusCode(), httpResponse.headers());
-            throw new RuntimeException("Unexpected Status Code " + httpResponse.statusCode());
-        } else {
-            is = httpResponse.body();
-            is = wrapWithGzip(httpResponse, is);
 
-            T ret = gson.fromJson(new InputStreamReader(is, StandardCharsets.UTF_8), typeToken);
+        // Body stream *MUST* be listed separately because we always want to close it even with there is an error
+        // creating the gzipReader. Not closing the body stream is a memory leak..
+        try (InputStream is = httpResponse.body();
+             InputStream gzipReader = wrapWithGzip(httpResponse, is);
+             InputStreamReader isr = new InputStreamReader(gzipReader, StandardCharsets.UTF_8)) {
+            if (httpResponse.statusCode() != SUCCESS_STATUS_CODE) {
+                logger.warn("Failed http request: {} {} {}", req.uri(), httpResponse.statusCode(), httpResponse.headers());
+                throw new RuntimeException("Unexpected Status Code " + httpResponse.statusCode());
+            } else {
+                T ret = gson.fromJson(isr, typeToken);
 
-            logger.debug("Request to {}: Response: {} {} {}", req, httpResponse.statusCode(), httpResponse.headers(), ret);
+                logger.debug("Request to {}: Response: {} {} {}", req, httpResponse.statusCode(), httpResponse.headers(), ret);
 
-            return new ApiResponse<>(httpResponse, ret);
+                return new ApiResponse<>(httpResponse, ret);
+            }
         }
     }
 

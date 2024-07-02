@@ -24,7 +24,8 @@ public class OrefHttpRequestFactory {
                 .timeout(callTimeout);
         String[] allHeaders = addAcceptEncodingGzip(headers);
 
-        ret.headers(allHeaders);
+        if (allHeaders.length > 1)
+            ret.headers(allHeaders);
         return ret.build();
     }
 
@@ -34,6 +35,7 @@ public class OrefHttpRequestFactory {
         for (int i = 0; i < headers.length; i += 2) {
             if (headers[i].equalsIgnoreCase(acceptEncodingHeader)) {
                 allHeaders = headers;
+                break;
             }
         }
         if (allHeaders == null) {

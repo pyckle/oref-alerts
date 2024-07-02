@@ -53,7 +53,7 @@ public class AlertDetailsFactory {
 
     private String translateCategory(String categoryId, String hebCat) {
         String translatedCategory = cachingService.getAlertDescriptions().retrievedValue()
-                .getAlertStringFromMatId(categoryId, hebCat);
+                .getAlertStringFromMatId(orefConfig.getLang(), categoryId, hebCat);
 
         // alert descriptions service failed. Try alert categories
         if (translatedCategory.equals(hebCat)) {

@@ -7,11 +7,12 @@ import com.github.pyckle.oref.integration.config.OrefApiUris;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.dto.Alert;
 import com.github.pyckle.oref.integration.dto.AlertHistory;
+import com.github.pyckle.oref.integration.dto.AlertTranslation;
 import com.github.pyckle.oref.integration.dto.Category;
 import com.github.pyckle.oref.integration.dto.District;
 import com.github.pyckle.oref.integration.dto.HistoryEventWithParsedDates;
-import com.github.pyckle.oref.integration.dto.LeftoverAlertDescription;
 import com.github.pyckle.oref.integration.translationstores.CategoryDescriptionStore;
+import com.github.pyckle.oref.integration.translationstores.CategoryStore;
 import com.github.pyckle.oref.integration.translationstores.DistrictStore;
 import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
@@ -33,7 +34,7 @@ public class OrefApiCachingService {
     private final CachedApiCall<CategoryDescriptionStore> alertDescriptions;
 
     // These APIs are for metadata about alerts, cities, and districts
-    private final CachedApiCall<List<Category>> categoriesApi;
+    private final CachedApiCall<CategoryStore> categoriesApi;
     private final CachedApiCall<DistrictStore> districtApi;
 
     // This is historical alert data.
@@ -78,10 +79,10 @@ public class OrefApiCachingService {
         };
 
         this.alertDescriptions = new CachedApiCall<>(
-                OrefHttpRequestFactory.buildRequest(uris.getLeftoversUri()),
+                OrefHttpRequestFactory.buildRequest(uris.getTranslationsUri()),
                 Duration.ofHours(24),
                 Duration.ofHours(1),
-                new TypeToken<List<LeftoverAlertDescription>>() {
+                new TypeToken<List<AlertTranslation>>() {
                 },
                 new CategoryDescriptionStore(List.of()),
                 resp -> new CategoryDescriptionStore(resp.responseObj()));
@@ -90,8 +91,9 @@ public class OrefApiCachingService {
                 OrefHttpRequestFactory.buildRequest(uris.getCategoriesUri()),
                 Duration.ofHours(12),
                 Duration.ofMinutes(30),
-                new TypeToken<>() {
-                }, List.of());
+                new TypeToken<List<Category>>() {
+                }, new CategoryStore(List.of()),
+                resp -> new CategoryStore(resp.responseObj()));
 
         this.districtApi = new CachedApiCall<>(
                 OrefHttpRequestFactory.buildRequest(uris.getDistrictsUri()),
@@ -125,7 +127,7 @@ public class OrefApiCachingService {
         return alertHistory.getCachedValue();
     }
 
-    public CachedApiResult<List<Category>> getCategoriesApi() {
+    public CachedApiResult<CategoryStore> getCategoriesApi() {
         return categoriesApi.getCachedValue();
     }
 
