@@ -1,6 +1,7 @@
 package com.github.pyckle.oref.alerts;
 
 import com.github.pyckle.oref.alerts.categories.AlertCategories;
+import com.github.pyckle.oref.alerts.categories.dto.AlertCategory;
 import com.github.pyckle.oref.alerts.details.AlertDetails;
 import com.github.pyckle.oref.alerts.details.AlertDetailsFactory;
 import com.github.pyckle.oref.integration.activealerts.ActiveAlert;
@@ -10,6 +11,7 @@ import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;
 import com.github.pyckle.oref.integration.dto.AlertHistory;
+import com.github.pyckle.oref.integration.dto.Category;
 import com.github.pyckle.oref.integration.dto.HistoryEventWithParsedDates;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +31,7 @@ public class AlertsManager {
 
     private final OrefApiCachingService orefApiCachingService;
     private final AlertDetailsFactory alertDetailsFactory;
+    private final OrefConfig orefConfig;
     private volatile AlertStatus currentAlerts = emptyStatus();
 
     public static AlertStatus emptyStatus() {
@@ -38,6 +41,7 @@ public class AlertsManager {
     public AlertsManager(OrefConfig orefConfig, OrefApiCachingService orefApiCachingService) {
         this.orefApiCachingService = orefApiCachingService;
         this.alertDetailsFactory = new AlertDetailsFactory(orefConfig, orefApiCachingService);
+        this.orefConfig = orefConfig;
     }
 
     /**
@@ -117,6 +121,22 @@ public class AlertsManager {
                                  List<AlertDetails> alertDetails, Instant receivedTimestamp, LocalDateTime groupedDateTime) {
         if (!alertedAreas.isEmpty()) {
             String translatedCategory = orefApiCachingService.getAlertDescriptions().retrievedValue().getAlertStringFromCatId(category, categoryHeb);
+            // alert descriptions service failed. Try alert categories
+            if (translatedCategory.equals(categoryHeb)) {
+
+                // need to go from cat to matrix id:
+                int matCat = Integer.MIN_VALUE;
+                for (Category c : orefApiCachingService.getCategoriesApi().retrievedValue()) {
+                    if (c.id() == category) {
+                        matCat = c.matrix_id();
+                        break;
+                    }
+                }
+                translatedCategory = AlertCategories.INSTANCE.getAlertCategory(String.valueOf(matCat))
+                        .map(AlertCategory::alertName)
+                        .map(mls -> mls.inLang(orefConfig.getLang(), categoryHeb))
+                        .orElse(categoryHeb);
+            }
             alertDetails.add(alertDetailsFactory.buildAlertDetailsFromHistory(historicalEvent, AlertCategories.INSTANCE.isDrill(category),
                     translatedCategory, categoryHeb, receivedTimestamp, groupedDateTime, alertedAreas));
         }

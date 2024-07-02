@@ -5,6 +5,7 @@ import java.util.Locale;
 
 public class OrefApiUris {
     private static final String URI_BASE = "https://www.oref.org.il";
+    private static final String URI_BASE_HISTORY = "https://alerts-history.oref.org.il";
 
     /**
      * Request to fetch history of historical events
@@ -39,20 +40,24 @@ public class OrefApiUris {
     public OrefApiUris(OrefConfig orefConfig) {
         String lang = orefConfig.getLang();
 
-        alertsUri = URI.create(URI_BASE + "/WarningMessages/alert/alerts.json?v=1");
-        alertsHistoryUri = URI.create(URI_BASE + "/WarningMessages/History/AlertsHistory.json?v=1");
+        alertsUri = URI.create(URI_BASE + "/warningMessages/alert/Alerts.json");
 
+        // this appears to be removed. Need to replace with something else
+        alertsHistoryUri = URI.create(URI_BASE_HISTORY + "warningMessages/alert/History/AlertsHistory.json");
+
+        // we use this for translation, need to move to: https://www.oref.org.il/alerts/alertsTranslation.json
         leftoversUri = URI.create(URI_BASE + "/Leftovers/" + lang.toUpperCase(Locale.ENGLISH) + ".Leftovers.json");
 
         // mode 1 is 1 day.
         // mode 2 is 1 week.
         // mode 3 is 1 month.
         historyUri =
-                URI.create(URI_BASE + "/Shared/Ajax/GetAlarmsHistory.aspx?lang=he&mode=3");
+                URI.create(URI_BASE_HISTORY + "/Shared/Ajax/GetAlarmsHistory.aspx?lang=he&mode=3");
 
-        categoriesUri = URI.create(URI_BASE + "/Shared/Ajax/GetAlertCategories.aspx");
+        // this appears to be removed. Need to replace with something else
+        categoriesUri = URI.create(URI_BASE + "/alerts/alertCategories.json");
         districtsUri = URI.create(
-                URI_BASE + "/Shared/Ajax/GetDistricts.aspx?lang=" + lang);
+                URI_BASE_HISTORY + "/Shared/Ajax/GetDistricts.aspx?lang=" + lang);
     }
 
 
