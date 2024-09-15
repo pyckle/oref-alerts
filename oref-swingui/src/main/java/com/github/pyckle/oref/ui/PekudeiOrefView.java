@@ -15,11 +15,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class PekudeiOrefView {
     private static final Logger logger = LoggerFactory.getLogger(PekudeiOrefView.class);
 
+    private static final int NO_TARGET_WIDTH = -1;
     private final OrefConfig orefConfig;
 
     private final JPanel panel;
@@ -119,20 +122,25 @@ public class PekudeiOrefView {
                 boolean isActive = alertDetails.remoteTimestamp().isAfter(activeAlertThreshold);
                 boolean isDrill = alertDetails.isDrill();
 
+                final Graphics g = this.panel.getGraphics();
+                final String splitRegex = Pattern.quote(", ");
                 String groupedLocs = "";
-                for (String loc : alertDetails.locations()) {
-                    activeAlertsDrawn |= isActive;
-                    String newGroupedLocs = groupedLocs + (groupedLocs.isEmpty() ? "" : ", ") + loc;
-                    boolean nextLocFits = maxAlertWidth >= getWidthInPx(newGroupedLocs, this.panel.getGraphics(), f);
-                    if (nextLocFits) {
-                        groupedLocs = newGroupedLocs;
-                    } else {
-                        addNextCellToPanel(tracker, false, areaColor(isDrill, isActive), groupedLocs);
+                for (String locStr : alertDetails.locations()) {
+                    for (String loc : locStr.split(splitRegex)) {
+                        activeAlertsDrawn |= isActive;
+                        String newGroupedLocs = groupedLocs + (groupedLocs.isEmpty() ? "" : ", ") + loc;
+                        int widthInPx = getWidthInPx(newGroupedLocs, g, f);
+                        boolean nextLocFits = nextLocFits(maxAlertWidth, widthInPx);
+                        if (groupedLocs.isEmpty() || nextLocFits) {
+                            groupedLocs = newGroupedLocs;
+                        } else {
+                            addNextCellToPanel(tracker, false, areaColor(isDrill, isActive), groupedLocs, g, maxAlertWidth);
 
-                        if (tracker.isDone())
-                            break DONE_WITH_ALERTS;
+                            if (tracker.isDone())
+                                break DONE_WITH_ALERTS;
 
-                        groupedLocs = loc;
+                            groupedLocs = loc;
+                        }
                     }
                 }
                 if (!groupedLocs.isEmpty())
@@ -144,6 +152,10 @@ public class PekudeiOrefView {
         }
         panel.revalidate();
         panel.repaint();
+    }
+
+    private static boolean nextLocFits(int maxAlertWidth, int widthInPx) {
+        return maxAlertWidth >= widthInPx;
     }
 
     private static Color areaColor(boolean isDrill, boolean isActive) {
@@ -203,9 +215,20 @@ public class PekudeiOrefView {
     }
 
     private void addNextCellToPanel(GridPlaceTracker tracker, boolean isBold, Color color, String message) {
-        GridBagConstraints gc = new GridBagConstraints();
-        JLabel label = createLabel(orefConfig.getMinFontSize(), color, isBold);
+        addNextCellToPanel(tracker, isBold, color, message, null, NO_TARGET_WIDTH);
+    }
 
+    private void addNextCellToPanel(GridPlaceTracker tracker, boolean isBold, Color color, String message, Graphics g, int maxWidthTarget) {
+        GridBagConstraints gc = new GridBagConstraints();
+        int fontSize = orefConfig.getMinFontSize();
+        JLabel label = createLabel(fontSize, color, isBold);
+
+        // make sure label size does not exceed width target.
+        if (g != null) {
+            Font oldFont = label.getFont();
+            label.setFont(FontSizeUtils.findBestFontSize(g, oldFont, message, maxWidthTarget, Integer.MAX_VALUE, fontSize));
+            System.out.println("Old: " + oldFont + " New: " + label.getFont());
+        }
         tracker.next(label.getFontMetrics(label.getFont()).getHeight());
         if (tracker.isDone())
             return;
