@@ -226,8 +226,9 @@ public class PekudeiOrefView {
         // make sure label size does not exceed width target.
         if (g != null) {
             Font oldFont = label.getFont();
-            label.setFont(FontSizeUtils.findBestFontSize(g, oldFont, message, maxWidthTarget, Integer.MAX_VALUE, fontSize));
-            System.out.println("Old: " + oldFont + " New: " + label.getFont());
+            label.setFont(
+                    FontSizeUtils.findBestFontSize(g, oldFont, message, maxWidthTarget, Integer.MAX_VALUE, fontSize));
+            logger.debug("Old: {} New: {}", oldFont, label.getFont());
         }
         tracker.next(label.getFontMetrics(label.getFont()).getHeight());
         if (tracker.isDone())

@@ -55,7 +55,12 @@ public class HistoryApiFactory {
         return ret;
     }
 
-    private static List<AlertHistory> sortAlertHistory(List<AlertHistory> alertHistory) {
+    private static List<AlertHistory> sortAlertHistory(List<AlertHistory> alertHistory)
+    {
+        // this happens when there were no alerts recently. Unfortunately not common these days ):
+        if (alertHistory == null)
+            return List.of();
+
         List<AlertHistory> sortedAlertHistory = new ArrayList<>(alertHistory);
 
         Comparator<AlertHistory> temporalHistoryComparator = Comparator.comparing(
