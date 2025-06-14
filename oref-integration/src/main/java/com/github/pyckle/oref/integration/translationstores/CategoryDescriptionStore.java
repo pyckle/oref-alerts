@@ -5,6 +5,7 @@ import com.github.pyckle.oref.integration.dto.AlertTranslation;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.pyckle.oref.integration.translationstores.CategoryType.CATEGORY;
 import static com.github.pyckle.oref.integration.translationstores.CategoryType.MATRIX;

@@ -7,6 +7,7 @@ import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;
 import com.github.pyckle.oref.integration.translationstores.DistrictStore;
+import com.github.pyckle.oref.integration.translationstores.UpdateFlashType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,8 +32,11 @@ public class AlertDetailsFactory {
         List<String> translatedAreas = translateAreas(alert.filteredAreasToDisplay());
         boolean isDrill = AlertCategories.INSTANCE.isDrill(alert.alertCategoryId());
         String translatedCategory = translateCategory(alert.alertCategoryId(), alert.alertCategoryHeb());
+        boolean isFlashOrUpdate = cachingService.getCategoriesApi().retrievedValue().isFlashOrUpdate(alert.alertCategoryId());
+        var updateFlashType = isFlashOrUpdate ? UpdateFlashType.findUpdateFlashType(alert.alertCategoryHeb()) : null;
+
         return new AlertDetails(AlertSource.ALERT, alert.alertTimestamps().getReceivedTimestamp(),
-                decodedDateTime, isDrill, alert.alertCategoryHeb(), translatedCategory,
+                decodedDateTime, isDrill, updateFlashType, alert.alertCategoryHeb(), translatedCategory,
                 translatedAreas, alert.filteredAreasToDisplay());
     }
 
@@ -74,10 +78,11 @@ public class AlertDetailsFactory {
         return translatedAreas;
     }
 
-    public AlertDetails buildAlertDetailsFromHistory(boolean fromArchiveHistoryService, boolean isDrill,
+    public AlertDetails buildAlertDetailsFromHistory(boolean fromArchiveHistoryService, boolean isDrill, UpdateFlashType updateFlashType,
                                                      String translatedCategory, String categoryHeb, Instant receivedDateTime,
                                                      LocalDateTime decodedDateTime, List<String> locationsHeb) {
-        return new AlertDetails(fromArchiveHistoryService ? AlertSource.HISTORY : AlertSource.ALERT_HISTORY, receivedDateTime,
-                decodedDateTime, isDrill, categoryHeb, translatedCategory, translateAreas(locationsHeb), locationsHeb);
+        return new AlertDetails(fromArchiveHistoryService ? AlertSource.HISTORY : AlertSource.ALERT_HISTORY,
+                receivedDateTime, decodedDateTime, isDrill, updateFlashType, categoryHeb, translatedCategory,
+                translateAreas(locationsHeb), locationsHeb);
     }
 }

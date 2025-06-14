@@ -11,8 +11,8 @@ import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;
 import com.github.pyckle.oref.integration.dto.AlertHistory;
-import com.github.pyckle.oref.integration.dto.Category;
 import com.github.pyckle.oref.integration.dto.HistoryEventWithParsedDates;
+import com.github.pyckle.oref.integration.translationstores.UpdateFlashType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,8 +122,11 @@ public class AlertsManager {
         if (!alertedAreas.isEmpty()) {
             String translatedCategory = orefApiCachingService.getAlertDescriptions().retrievedValue().getAlertStringFromCatId(orefConfig.getLang(), category, categoryHeb);
 
+            boolean isFlashOrUpdate = orefApiCachingService.getCategoriesApi().retrievedValue().isFlashOrUpdate(category);
+            var updateFlashType = isFlashOrUpdate ? UpdateFlashType.findUpdateFlashType(categoryHeb) : null;
+
             // alert descriptions service failed. Fallback to alert categories
-            if (translatedCategory.equals(categoryHeb)) {
+            if (!"he".equalsIgnoreCase(orefConfig.getLang()) && translatedCategory.equals(categoryHeb)) {
                 int matId = orefApiCachingService.getCategoriesApi().retrievedValue().categoryToMatrixId(category);
                 translatedCategory = AlertCategories.INSTANCE.getAlertCategory(String.valueOf(matId))
                         .map(AlertCategory::alertName)
@@ -131,7 +134,7 @@ public class AlertsManager {
                         .orElse(categoryHeb);
             }
             alertDetails.add(alertDetailsFactory.buildAlertDetailsFromHistory(historicalEvent, AlertCategories.INSTANCE.isDrill(category),
-                    translatedCategory, categoryHeb, receivedTimestamp, groupedDateTime, alertedAreas));
+                    updateFlashType, translatedCategory, categoryHeb, receivedTimestamp, groupedDateTime, alertedAreas));
         }
     }
 

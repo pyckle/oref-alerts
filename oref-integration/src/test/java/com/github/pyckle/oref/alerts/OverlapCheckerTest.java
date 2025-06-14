@@ -58,6 +58,6 @@ public class OverlapCheckerTest {
     AlertDetails dummyAlertDetails(List<String> locs, LocalDateTime remoteTimestamp) {
         return new AlertDetails(AlertSource.ALERT_HISTORY, remoteTimestamp.atZone(OrefDateTimeUtils.ISRAEL_ZONE).toInstant(),
                 remoteTimestamp,
-                false, null, null, locs, locs);
+                false, null, null, null, locs, locs);
     }
 }

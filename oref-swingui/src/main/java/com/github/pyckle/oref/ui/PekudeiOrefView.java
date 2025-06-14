@@ -134,7 +134,7 @@ public class PekudeiOrefView {
                         if (groupedLocs.isEmpty() || nextLocFits) {
                             groupedLocs = newGroupedLocs;
                         } else {
-                            addNextCellToPanel(tracker, false, areaColor(isDrill, isActive), groupedLocs, g, maxAlertWidth);
+                            addNextCellToPanel(tracker, false, areaColor(alertDetails, isActive), groupedLocs, g, maxAlertWidth);
 
                             if (tracker.isDone())
                                 break DONE_WITH_ALERTS;
@@ -144,7 +144,7 @@ public class PekudeiOrefView {
                     }
                 }
                 if (!groupedLocs.isEmpty())
-                    addNextCellToPanel(tracker, false, areaColor(isDrill, isActive), groupedLocs);
+                    addNextCellToPanel(tracker, false, areaColor(alertDetails, isActive), groupedLocs);
             }
         } else {
             tracker = new GridPlaceTracker(1);
@@ -158,9 +158,12 @@ public class PekudeiOrefView {
         return maxAlertWidth >= widthInPx;
     }
 
-    private static Color areaColor(boolean isDrill, boolean isActive) {
-        if (isDrill)
+    private static Color areaColor(AlertDetails alertDetails, boolean isActive) {
+        if (alertDetails.isDrill())
             return Color.CYAN;
+        if (alertDetails.updateFlashType() != null)
+            return alertDetails.updateFlashType().getColor();
+
         return isActive ? Color.RED : Color.YELLOW;
     }
 

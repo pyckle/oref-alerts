@@ -107,7 +107,7 @@ public class OrefApiCachingService {
 
         this.alertsManager = new AlertsManager(orefConfig, this);
         this.updaterThread = new CacheUpdateThread(alertsManager::updateAlerts,
-                List.of(alertDescriptions, alertHistory, alertApi, historyApi, categoriesApi, districtApi));
+                List.of(alertDescriptions, categoriesApi, alertHistory, alertApi, historyApi, districtApi));
         updaterThread.start();
     }
 
