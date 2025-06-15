@@ -10,6 +10,7 @@ public class FlashUpdateTypeConstants
     public static final String YELLOW_STAY_CLOSE_TO_SHELTER = "יש לשהות בסמיכות למרחב המוגן";
     public static final String YELLOW_STAY_CLOSE_TO_SHELTER2 = "שהייה בסמיכות למרחב מוגן";
     public static final String YELLOW_LEAVE_SHELTER_STAY_CLOSE = "ניתן לצאת מהמרחב המוגן אך יש להישאר בקרבתו";
+    public static final String YELLOW_LEAVE_SHELTER = "ניתן לצאת מהמרחב המוגן";
     public static final String YELLOW_EARTHQUAKE = "הנחיות בעקבות רעידת האדמה";
     public static final String ORANGE_ALERTS_EXPECTED_SHORTLY = "בדקות הקרובות צפויות להתקבל התרעות";
     public static final String RED_SHELTER_IMMEDIATELY = "היכנסו מיד למרחב המוגן";
