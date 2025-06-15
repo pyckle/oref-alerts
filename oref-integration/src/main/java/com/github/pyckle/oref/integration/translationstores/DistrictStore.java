@@ -96,8 +96,8 @@ public class DistrictStore {
 
 
         // first look for hebrew key
-        if (hebrewNameToDistrictInfo.containsKey(orefConfig.getLang()))
-            return hebrewNameToDistrictInfo.get(orefConfig.getLang());
+        if (hebrewNameToDistrictInfo.containsKey(orefConfig.getAlertArea()))
+            return hebrewNameToDistrictInfo.get(orefConfig.getAlertArea());
 
         // search for English key. Only done once per district update - perf should be fine.
         for (District d : hebrewNameToDistrictInfo.values()) {

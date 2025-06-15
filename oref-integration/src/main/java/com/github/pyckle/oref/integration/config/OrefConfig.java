@@ -25,7 +25,7 @@ public class OrefConfig {
         this.isEnabled = Boolean.parseBoolean(getProperty(properties, "", DEFAULT_ENABLED));
         this.minFontSize = Integer.parseInt(getProperty(properties, FONT_SIZE, DEFAULT_FONT_SIZE));
         this.lang = getProperty(properties, LANG, DEFAULT_LANG);
-        this.alertArea = getProperty(properties, ALERT_AREA, ALERT_AREA);
+        this.alertArea = getProperty(properties, ALERT_AREA, DEFAULT_ALERT_AREA);
     }
 
     private static String getProperty(Properties properties, String prop, String defaultVal) {
