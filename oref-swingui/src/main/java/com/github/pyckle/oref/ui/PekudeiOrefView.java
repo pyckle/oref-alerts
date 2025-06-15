@@ -2,10 +2,12 @@ package com.github.pyckle.oref.ui;
 
 import com.github.pyckle.oref.alerts.AlertsManager;
 import com.github.pyckle.oref.alerts.details.AlertDetails;
+import com.github.pyckle.oref.integration.caching.ActiveAlertState;
 import com.github.pyckle.oref.integration.caching.AlertStatus;
 import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;
+import com.github.pyckle.oref.integration.dto.District;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +17,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -104,6 +105,25 @@ public class PekudeiOrefView {
 
             setAlertUpdateStatus(activeAlertThreshold, tracker);
             f = getFont(orefConfig.getMinFontSize(), false);
+
+            District alertArea = alertsManager.alertArea();
+            if (alertArea != null)
+            {
+                LocalDateTime displayThreshold = getRecentAlertTimeframeForAlertArea();
+                addNextCellToPanel(tracker, true, Color.WHITE, "Alerts for " + alertArea.label());
+
+                for (AlertDetails alertDetails : alerts)
+                {
+                    if (tracker.isDone() || alertDetails.remoteTimestamp().isBefore(displayThreshold))
+                        break;
+
+                    if (alertDetails.matchesArea(alertArea)) {
+                        // match found, need to display.
+                        Color alertColor = alertDetails.updateFlashType() !=null ? alertDetails.updateFlashType().getColor() : Color.YELLOW;
+                        addNextCellToPanel(tracker, true, alertColor, getGroupedAlertTitle(alertDetails));
+                    }
+                }
+            }
 
             LocalDate currDate = LocalDate.MIN;
             DONE_WITH_ALERTS:
@@ -207,6 +227,10 @@ public class PekudeiOrefView {
         return !alertStatus.getAlerts().isEmpty() && alertStatus.getAlerts().get(0).remoteTimestamp().isAfter(threshold);
     }
 
+    public AlertStatus getAlertStatus() {
+        return alertStatus;
+    }
+
     public void triggerResize(int width, int height) {
         this.maxHeight = height;
         this.maxWidth = width;
@@ -214,7 +238,11 @@ public class PekudeiOrefView {
     }
 
     private static LocalDateTime getActiveAlertThreshold() {
-        return LocalDateTime.now().minusSeconds(180);
+        return LocalDateTime.now().minusMinutes(10);
+    }
+
+    private static LocalDateTime getRecentAlertTimeframeForAlertArea() {
+        return LocalDateTime.now().minusHours(18);
     }
 
     private void addNextCellToPanel(GridPlaceTracker tracker, boolean isBold, Color color, String message) {

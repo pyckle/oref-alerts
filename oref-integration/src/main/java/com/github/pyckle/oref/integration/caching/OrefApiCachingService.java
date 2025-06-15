@@ -100,8 +100,8 @@ public class OrefApiCachingService {
                 Duration.ofHours(12),
                 Duration.ofMinutes(30),
                 new TypeToken<List<District>>() {
-                }, new DistrictStore(),
-                districts -> new DistrictStore(orefConfig.getLang(), districts));
+                }, new DistrictStore(orefConfig),
+                districts -> new DistrictStore(orefConfig, districts));
 
         this.historyApi = HistoryApiFactory.buildCachedHistoryApi(uris);
 

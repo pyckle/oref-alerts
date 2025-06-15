@@ -1,5 +1,7 @@
 package com.github.pyckle.oref.ui;
 
+import com.github.pyckle.oref.integration.config.OrefConfig;
+
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.regex.Pattern;
@@ -22,11 +24,13 @@ public class Main {
                 case "ar":
                 case "he":
                     properties.setProperty("oref.lang", arg);
-                    break;
+                    continue;
             }
             if (pattern.matcher(arg).matches()) {
                 properties.setProperty("oref.font_size", arg);
+                continue;
             }
+            properties.setProperty("oref." + OrefConfig.ALERT_AREA, arg);
         }
         return properties;
     }

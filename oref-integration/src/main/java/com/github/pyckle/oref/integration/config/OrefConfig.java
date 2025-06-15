@@ -13,15 +13,19 @@ public class OrefConfig {
     private static final String DEFAULT_FONT_SIZE = "16";
     public static final String LANG = "lang";
     private static final String DEFAULT_LANG = "he";
+    public static final String ALERT_AREA = "alert_area";
+    public static final String DEFAULT_ALERT_AREA = ""; // all by default
 
     private final boolean isEnabled;
     private final String lang;
     private final int minFontSize;
+    private final String alertArea;
 
     public OrefConfig(Properties properties) {
         this.isEnabled = Boolean.parseBoolean(getProperty(properties, "", DEFAULT_ENABLED));
         this.minFontSize = Integer.parseInt(getProperty(properties, FONT_SIZE, DEFAULT_FONT_SIZE));
         this.lang = getProperty(properties, LANG, DEFAULT_LANG);
+        this.alertArea = getProperty(properties, ALERT_AREA, ALERT_AREA);
     }
 
     private static String getProperty(Properties properties, String prop, String defaultVal) {
@@ -43,5 +47,9 @@ public class OrefConfig {
 
     public int getMinFontSize() {
         return minFontSize;
+    }
+
+    public String getAlertArea() {
+        return alertArea;
     }
 }

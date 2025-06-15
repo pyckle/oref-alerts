@@ -24,20 +24,21 @@ import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTy
 
 public enum UpdateFlashType
 {
-    GREEN(Color.GREEN, GREEN_NRC_LEAVE_BUILDING, GREEN_LEAVE_BUILDING, GREEN_TERRORIST_THREAT_ENDED,
+    GREEN(100, Color.GREEN, GREEN_NRC_LEAVE_BUILDING, GREEN_LEAVE_BUILDING, GREEN_TERRORIST_THREAT_ENDED,
             GREEN_UAV_THREAT_ENDED), // safe to leave building
-    YELLOW(Color.YELLOW, YELLOW_EARTHQUAKE, YELLOW_STAY_CLOSE_TO_SHELTER, YELLOW_STAY_CLOSE_TO_SHELTER2,
+    YELLOW(90, Color.YELLOW, YELLOW_EARTHQUAKE, YELLOW_STAY_CLOSE_TO_SHELTER, YELLOW_STAY_CLOSE_TO_SHELTER2,
             YELLOW_LEAVE_SHELTER_STAY_CLOSE), // stay close to a shelter
-    ORANGE(Color.ORANGE, ORANGE_ALERTS_EXPECTED_SHORTLY), // alerts expected area shortly
-    RED(Color.RED, RED_NRC, RED_CONTINUE_SHELTER, RED_SHELTER_IMMEDIATELY); // go to shelter immediately
+    ORANGE(80, Color.ORANGE, ORANGE_ALERTS_EXPECTED_SHORTLY), // alerts expected area shortly
+    RED(70, Color.RED, RED_NRC, RED_CONTINUE_SHELTER, RED_SHELTER_IMMEDIATELY); // go to shelter immediately
 
     private static final Set<String> HISTORICAL_LABELS = Set.of("עדכון", "מבזק");
     private static final Logger logger = LoggerFactory.getLogger(OrefApiCachingService.class);
+    private final int severity;
     private final Color c;
     private final List<String> containedLabels;
 
-    UpdateFlashType(Color c, String... containedLabels)
-    {
+    UpdateFlashType(int severity, Color c, String... containedLabels) {
+        this.severity = severity;
         this.c = c;
         this.containedLabels = List.of(containedLabels);
     }
@@ -77,5 +78,9 @@ public enum UpdateFlashType
     public boolean matches(String hebTitle)
     {
         return containedLabels.stream().anyMatch(hebTitle::contains);
+    }
+
+    public int getSeverity() {
+        return severity;
     }
 }

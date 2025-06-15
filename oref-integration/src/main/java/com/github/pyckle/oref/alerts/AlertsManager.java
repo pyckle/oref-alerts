@@ -11,6 +11,7 @@ import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;
 import com.github.pyckle.oref.integration.dto.AlertHistory;
+import com.github.pyckle.oref.integration.dto.District;
 import com.github.pyckle.oref.integration.dto.HistoryEventWithParsedDates;
 import com.github.pyckle.oref.integration.translationstores.UpdateFlashType;
 import org.slf4j.Logger;
@@ -51,6 +52,13 @@ public class AlertsManager {
      */
     public AlertStatus getAlerts() {
         return currentAlerts;
+    }
+
+    /**
+     * @return the district to display alerts for
+     */
+    public District alertArea() {
+        return orefApiCachingService.getDistrictApi().retrievedValue().getAlertArea();
     }
 
     public void updateAlerts() {
