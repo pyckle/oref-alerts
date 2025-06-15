@@ -1,6 +1,7 @@
 package com.github.pyckle.oref.integration.translationstores;
 
 import com.github.pyckle.oref.integration.dto.AlertTranslation;
+import com.google.common.collect.Maps;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,9 +27,7 @@ public class CategoryDescriptionStore
                             k -> new AlertCategoryStore.Builder(k.categoryType(), k.id()))
                     .addAlertTranslation(alertTranslation);
         }
-        matIdToDescription = Map.ofEntries(
-                builders.entrySet().stream().map(e -> Map.entry(e.getKey(), e.getValue().build()))
-                        .toArray(Map.Entry[]::new));
+        matIdToDescription = Map.copyOf(Maps.transformValues(builders, AlertCategoryStore.Builder::build));
     }
 
     public String getAlertStringFromCatId(String lang, int cat, String defaultVal)

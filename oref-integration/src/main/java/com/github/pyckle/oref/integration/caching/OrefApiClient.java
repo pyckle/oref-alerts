@@ -1,5 +1,7 @@
 package com.github.pyckle.oref.integration.caching;
 
+import com.google.common.base.Stopwatch;
+import com.google.common.io.CountingInputStream;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.slf4j.Logger;
@@ -23,11 +25,12 @@ public class OrefApiClient {
             throws IOException, InterruptedException {
         Gson gson = new Gson();
 
+        Stopwatch stopwatch = Stopwatch.createStarted();
         HttpResponse<InputStream> httpResponse = client.send(req, HttpResponse.BodyHandlers.ofInputStream());
 
         // Body stream *MUST* be listed separately because we always want to close it even with there is an error
         // creating the gzipReader. Not closing the body stream is a memory leak..
-        try (InputStream is = httpResponse.body();
+        try (CountingInputStream is = new CountingInputStream(httpResponse.body());
              InputStream gzipReader = wrapWithGzip(httpResponse, is);
              InputStreamReader isr = new InputStreamReader(gzipReader, StandardCharsets.UTF_8)) {
             if (httpResponse.statusCode() != SUCCESS_STATUS_CODE) {
@@ -36,7 +39,10 @@ public class OrefApiClient {
             } else {
                 T ret = gson.fromJson(isr, typeToken);
 
-                logger.debug("Request to {}: Response: {} {} {}", req, httpResponse.statusCode(), httpResponse.headers(), ret);
+                logger.debug("Fetched {} bytes in Request to {}: Response: {} in {}", is.getCount(), req.uri(),
+                        httpResponse.statusCode(), stopwatch.elapsed());
+                logger.trace("Request to {}: Response: {} {} {}", req, httpResponse.statusCode(),
+                        httpResponse.headers(), ret);
 
                 return new ApiResponse<>(httpResponse, ret);
             }
