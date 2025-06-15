@@ -23,9 +23,9 @@ public record ActiveAlert(AlertTimestamps alertTimestamps,
     }
 
     /**
-     * @return the alert category id
+     * @return the alert category matrix id
      */
-    public String alertCategoryId() {
+    public String alertMatrixId() {
         return rawAlert.cat();
     }
 

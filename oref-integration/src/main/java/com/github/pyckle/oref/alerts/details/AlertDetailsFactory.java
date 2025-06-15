@@ -6,6 +6,7 @@ import com.github.pyckle.oref.integration.activealerts.ActiveAlert;
 import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;
+import com.github.pyckle.oref.integration.translationstores.CategoryStore;
 import com.github.pyckle.oref.integration.translationstores.DistrictStore;
 import com.github.pyckle.oref.integration.translationstores.UpdateFlashType;
 import org.slf4j.Logger;
@@ -30,9 +31,10 @@ public class AlertDetailsFactory {
         LocalDateTime decodedDateTime = getRemoteTimestamp(alert);
 
         List<String> translatedAreas = translateAreas(alert.filteredAreasToDisplay());
-        boolean isDrill = AlertCategories.INSTANCE.isDrill(alert.alertCategoryId());
-        String translatedCategory = translateCategory(alert.alertCategoryId(), alert.alertCategoryHeb());
-        boolean isFlashOrUpdate = cachingService.getCategoriesApi().retrievedValue().isFlashOrUpdate(alert.alertCategoryId());
+        boolean isDrill = AlertCategories.INSTANCE.isDrill(alert.alertMatrixId());
+        String translatedCategory = translateCategory(alert.alertMatrixId(), alert.alertCategoryHeb());
+        CategoryStore categoryStore = cachingService.getCategoriesApi().retrievedValue();
+        boolean isFlashOrUpdate = categoryStore.isFlashOrUpdate(alert.alertMatrixId());
         var updateFlashType = isFlashOrUpdate ? UpdateFlashType.findUpdateFlashType(alert.alertCategoryHeb()) : null;
 
         return new AlertDetails(AlertSource.ALERT, alert.alertTimestamps().getReceivedTimestamp(),
@@ -55,13 +57,13 @@ public class AlertDetailsFactory {
         return decodedDateTime;
     }
 
-    private String translateCategory(String categoryId, String hebCat) {
+    private String translateCategory(String matrixId, String hebCat) {
         String translatedCategory = cachingService.getAlertDescriptions().retrievedValue()
-                .getAlertStringFromMatId(orefConfig.getLang(), categoryId, hebCat);
+                .getAlertStringFromMatId(orefConfig.getLang(), matrixId, hebCat);
 
         // alert descriptions service failed. Try alert categories
         if (translatedCategory.equals(hebCat)) {
-            translatedCategory = AlertCategories.INSTANCE.getAlertCategory(categoryId)
+            translatedCategory = AlertCategories.INSTANCE.getAlertCategory(matrixId)
                     .map(AlertCategory::alertName)
                     .map(mls -> mls.inLang(orefConfig.getLang(), hebCat))
                     .orElse(hebCat);

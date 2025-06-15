@@ -14,6 +14,7 @@ public class CategoryStore {
     private final Map<Integer, Category> catIdToCategory;
     private final Map<Integer, Category> matIdToCategory;
     private final Set<Integer> flashAndUpdateCatIds = new HashSet<>();
+    private final Set<Integer> flashAndUpdateMatIds = new HashSet<>();
 
     public CategoryStore(List<Category> categoryList) {
         this.categoryList = categoryList;
@@ -25,6 +26,7 @@ public class CategoryStore {
             if (category.category() != null
                     && (category.category().contains("update") || category.category().contains("flash"))) {
                 flashAndUpdateCatIds.add(category.id());
+                flashAndUpdateMatIds.add(category.matrix_id());
             }
         }
     }
@@ -40,9 +42,9 @@ public class CategoryStore {
         return flashAndUpdateCatIds.contains(catId);
     }
 
-    public boolean isFlashOrUpdate(String catId) {
+    public boolean isFlashOrUpdate(String matrixId) {
         try {
-            return isFlashOrUpdate(Integer.parseInt(catId));
+            return flashAndUpdateMatIds.contains(Integer.parseInt(matrixId));
         }
         catch (NumberFormatException ex) {
             return false;

@@ -35,11 +35,11 @@ public class CategoryDescriptionStore
         return labelOrDefault(lang, defaultVal, matIdToDescription.get(new CategoryKey(CATEGORY, cat)));
     }
 
-    public String getAlertStringFromMatId(String lang, String cat, String defaultVal)
+    public String getAlertStringFromMatId(String lang, String matId, String defaultVal)
     {
-        if (isValidInteger(cat))
+        if (isValidInteger(matId))
             return defaultVal;
-        return getAlertStringFromMatId(lang, Integer.parseInt(cat), defaultVal);
+        return getAlertStringFromMatId(lang, Integer.parseInt(matId), defaultVal);
     }
 
     private static boolean isValidInteger(String cat)
