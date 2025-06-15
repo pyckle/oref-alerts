@@ -52,7 +52,7 @@ public class OrefApiCachingService {
                 OrefHttpRequestFactory.buildRequest(uris.getAlertsUri(),
                         "Referer", "https://www.oref.org.il//12481-he/Pakar.aspx",
                         "X-Requested-With", "XMLHttpRequest"),
-                Duration.ofSeconds(2),
+                Duration.ofSeconds(1),
                 Duration.ofSeconds(1),
                 new TypeToken<Alert>() {
                 }, List.of(), alertStore::addAlert) {

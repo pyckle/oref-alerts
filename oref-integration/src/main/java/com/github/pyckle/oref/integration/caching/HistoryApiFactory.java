@@ -45,8 +45,8 @@ public class HistoryApiFactory {
     static CachedApiCall<List<AlertHistory>> buildCachedHistory24Api(OrefApiUris uris) {
         CachedApiCall<List<AlertHistory>> ret = new CachedApiCall<>(
                 OrefHttpRequestFactory.buildRequest(uris.getAlertsHistoryUri()),
-                Duration.ofMinutes(15),
-                Duration.ofMinutes(1),
+                Duration.ofSeconds(5),
+                Duration.ofSeconds(5),
                 new TypeToken<List<AlertHistory>>() {
                 },
                 List.of(),
