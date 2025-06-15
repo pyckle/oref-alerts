@@ -8,4 +8,8 @@ public record ActiveAlertState(boolean hasAlert, UpdateFlashType mostSevereUpdat
     {
         return mostSevereUpdateOrFlashType != null;
     }
+
+    public boolean isEmpty() {
+        return !hasAlert && mostSevereUpdateOrFlashType == null;
+    }
 }

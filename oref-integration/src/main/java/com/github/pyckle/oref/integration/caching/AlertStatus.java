@@ -1,6 +1,7 @@
 package com.github.pyckle.oref.integration.caching;
 
 import com.github.pyckle.oref.alerts.details.AlertDetails;
+import com.github.pyckle.oref.integration.dto.District;
 import com.github.pyckle.oref.integration.translationstores.DistrictStore;
 import com.github.pyckle.oref.integration.translationstores.UpdateFlashType;
 
@@ -31,14 +32,14 @@ public class AlertStatus {
         return activeAlertState(threshold, null);
     }
 
-    public ActiveAlertState activeAlertState(LocalDateTime threshold, String alertAreaHeb)
+    public ActiveAlertState activeAlertState(LocalDateTime threshold, District district)
     {
         boolean hasAlert = false;
         UpdateFlashType mostSevereUpdateColor = null;
-        var matchingAlerts = alertAreaHeb == null ? null : Set.of(alertAreaHeb);
+        var matchingAlerts = district == null ? null : Set.of(district.label_he());
         for (var alert : getAlerts())
         {
-            if (alert.remoteTimestamp().isAfter(threshold)) {
+            if (threshold.isAfter(alert.remoteTimestamp())) {
                 break;
             }
             if (alertMatches(alert, matchingAlerts)) {

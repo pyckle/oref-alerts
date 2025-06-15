@@ -119,7 +119,9 @@ public class PekudeiOrefView {
 
                     if (alertDetails.matchesArea(alertArea)) {
                         // match found, need to display.
-                        Color alertColor = alertDetails.updateFlashType() !=null ? alertDetails.updateFlashType().getColor() : Color.YELLOW;
+                        Color alertColor = alertDetails.updateFlashType() != null ?
+                                alertDetails.updateFlashType().getColor() :
+                                Color.RED;
                         addNextCellToPanel(tracker, true, alertColor, getGroupedAlertTitle(alertDetails));
                     }
                 }
@@ -227,8 +229,12 @@ public class PekudeiOrefView {
         return !alertStatus.getAlerts().isEmpty() && alertStatus.getAlerts().get(0).remoteTimestamp().isAfter(threshold);
     }
 
-    public AlertStatus getAlertStatus() {
-        return alertStatus;
+    public ActiveAlertState getAlertStatus(LocalDateTime alertTreshold) {
+        return alertStatus.activeAlertState(alertTreshold, alertsManager.alertArea());
+    }
+
+    public ActiveAlertState getAlertStatusAllCountry(LocalDateTime alertThreshold) {
+        return alertStatus.activeAlertState(alertThreshold);
     }
 
     public void triggerResize(int width, int height) {
