@@ -1,5 +1,6 @@
 package com.github.pyckle.oref.cli;
 
+import com.github.pyckle.oref.integration.DnsUtil;
 import com.github.pyckle.oref.integration.activealerts.ActiveAlert;
 import com.github.pyckle.oref.integration.caching.CachedApiResult;
 import com.github.pyckle.oref.integration.caching.OrefApiCachingService;
@@ -15,6 +16,7 @@ import java.util.Properties;
  */
 public class Main {
     public static void main(String[] args) throws InterruptedException {
+        DnsUtil.disableDnsCaching();
         OrefApiCachingService orefApiCachingService = new OrefApiCachingService(new OrefConfig(new Properties()));
         orefApiCachingService.waitForInitialization();
         System.out.println("Caches initialized");

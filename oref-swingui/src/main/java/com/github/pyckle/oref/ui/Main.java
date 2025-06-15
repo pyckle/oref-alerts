@@ -1,5 +1,6 @@
 package com.github.pyckle.oref.ui;
 
+import com.github.pyckle.oref.integration.DnsUtil;
 import com.github.pyckle.oref.integration.config.OrefConfig;
 
 import java.util.Arrays;
@@ -9,6 +10,7 @@ import java.util.regex.Pattern;
 public class Main {
 
     public static void main(String[] args) {
+        DnsUtil.disableDnsCaching();
         configSlf4j(args);
         Properties properties = parseProperties(args);
         javax.swing.SwingUtilities.invokeLater(() -> new PekudeiOrefGui(properties).createAndShowGUI());

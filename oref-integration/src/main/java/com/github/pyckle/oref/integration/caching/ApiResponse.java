@@ -1,8 +1,8 @@
 package com.github.pyckle.oref.integration.caching;
 
-import java.net.http.HttpResponse;
+import okhttp3.Response;
 
 public record ApiResponse<T>(
-        HttpResponse<?> response,
+        Response response,
         T responseObj) {
 }
