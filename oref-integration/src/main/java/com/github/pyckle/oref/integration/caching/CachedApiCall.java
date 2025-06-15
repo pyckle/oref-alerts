@@ -76,7 +76,7 @@ public class CachedApiCall<T> {
             throw ex;
         } catch (Exception ex) {
             // try again later
-            logger.warn("Failure to fetch update {}", ex.getLocalizedMessage());
+            logger.warn("Failure to fetch update to {} {}", req.uri(), ex.getLocalizedMessage());
             logger.debug("Failure to fetch update", ex);
             return new UpdateResult(false, null);
         }

@@ -88,7 +88,7 @@ public class CacheUpdateThread extends Thread {
         CachedApiResult<?> cachedValue = currTask.toRefresh.getCachedValue();
         long now = cachedValue.localTimestamp().toEpochMilli();
         long minNextTimeToCall = now + minWait;
-        long maxNextTimeToCall = now + minWait * 3;
+        long maxNextTimeToCall = now + minWait * 2;
         if (cachedValue.maxAge() >= 1) {
             Instant generatedTimestamp =
                     Objects.requireNonNullElse(cachedValue.serverTimestamp(), cachedValue.localTimestamp());

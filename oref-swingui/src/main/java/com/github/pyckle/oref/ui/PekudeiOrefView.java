@@ -265,7 +265,7 @@ public class PekudeiOrefView {
             Font oldFont = label.getFont();
             label.setFont(
                     FontSizeUtils.findBestFontSize(g, oldFont, message, maxWidthTarget, Integer.MAX_VALUE, fontSize));
-            logger.debug("Old: {} New: {}", oldFont, label.getFont());
+            logger.trace("Old: {} New: {}", oldFont, label.getFont());
         }
         tracker.next(label.getFontMetrics(label.getFont()).getHeight());
         if (tracker.isDone())
