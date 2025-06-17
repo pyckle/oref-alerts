@@ -111,7 +111,7 @@ public class OrefApiClient {
 
     private static InputStream wrapWithGzip(HttpUrl url,  Headers responseHeaders, InputStream is) throws IOException {
         var contentEncoding = responseHeaders.toMultimap().get("Content-Encoding");
-        if (!contentEncoding.isEmpty()) {
+        if (contentEncoding != null && !contentEncoding.isEmpty()) {
             if (contentEncoding.size() == 1 && contentEncoding.get(0).equalsIgnoreCase("gzip")) {
                 logger.debug("response is gzipped encoded {}", url);
                 return new GzipCompressorInputStream(is);
