@@ -8,9 +8,11 @@ import org.slf4j.LoggerFactory;
 import java.awt.Color;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_LEAVE_BUILDING;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_NRC_LEAVE_BUILDING;
+import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_ROCKET_THREAT_ENDED;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_TERRORIST_THREAT_ENDED;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_UAV_THREAT_ENDED;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.ORANGE_ALERTS_EXPECTED_SHORTLY;
@@ -26,12 +28,15 @@ import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTy
 public enum UpdateFlashType
 {
     GREEN(100, Color.GREEN, GREEN_NRC_LEAVE_BUILDING, GREEN_LEAVE_BUILDING, GREEN_TERRORIST_THREAT_ENDED,
-            GREEN_UAV_THREAT_ENDED), // safe to leave building
+            GREEN_ROCKET_THREAT_ENDED, GREEN_UAV_THREAT_ENDED), // safe to leave building
     YELLOW(90, Color.YELLOW, YELLOW_EARTHQUAKE, YELLOW_STAY_CLOSE_TO_SHELTER, YELLOW_STAY_CLOSE_TO_SHELTER2,
             YELLOW_LEAVE_SHELTER_STAY_CLOSE, YELLOW_LEAVE_SHELTER), // stay close to a shelter
     ORANGE(80, Color.ORANGE, ORANGE_ALERTS_EXPECTED_SHORTLY), // alerts expected area shortly
-    RED(70, Color.RED, RED_NRC, RED_CONTINUE_SHELTER, RED_SHELTER_IMMEDIATELY); // go to shelter immediately
+    RED(70, Color.RED, RED_NRC, RED_CONTINUE_SHELTER, RED_SHELTER_IMMEDIATELY), // go to shelter immediately
+    UNKNOWN(60, new Color(255, 0, 255)) //purple
+    ;
 
+    private static final Set<String> unknownColor = ConcurrentHashMap.newKeySet();
     private static final Set<String> HISTORICAL_LABELS = Set.of("עדכון", "מבזק");
     private static final Logger logger = LoggerFactory.getLogger(OrefApiCachingService.class);
     private final int severity;
@@ -62,8 +67,10 @@ public enum UpdateFlashType
         if (HISTORICAL_LABELS.contains(hebTitle))
             return YELLOW;
 
-        logger.warn("Cannot find alert type for {}, defaulting to red.", hebTitle);
-        return RED;
+        // print out warning only once.
+        if (unknownColor.add(hebTitle))
+            logger.warn("Cannot find alert type for {}, return UNKNOWN.", hebTitle);
+        return UNKNOWN;
     }
 
     public Color getColor() {
