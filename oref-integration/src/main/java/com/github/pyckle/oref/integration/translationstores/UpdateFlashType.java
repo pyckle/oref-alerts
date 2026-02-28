@@ -17,6 +17,7 @@ import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTy
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_UAV_THREAT_ENDED;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.ORANGE_ALERTS_EXPECTED_SHORTLY;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.RED_CONTINUE_SHELTER;
+import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.RED_CONTINUE_SHELTER_UNTIL_FURTHER_NOTICE;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.RED_NRC;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.RED_SHELTER_IMMEDIATELY;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.YELLOW_EARTHQUAKE;
@@ -32,7 +33,8 @@ public enum UpdateFlashType
     YELLOW(90, Color.YELLOW, YELLOW_EARTHQUAKE, YELLOW_STAY_CLOSE_TO_SHELTER, YELLOW_STAY_CLOSE_TO_SHELTER2,
             YELLOW_LEAVE_SHELTER_STAY_CLOSE, YELLOW_LEAVE_SHELTER), // stay close to a shelter
     ORANGE(80, Color.ORANGE, ORANGE_ALERTS_EXPECTED_SHORTLY), // alerts expected area shortly
-    RED(70, Color.RED, RED_NRC, RED_CONTINUE_SHELTER, RED_SHELTER_IMMEDIATELY), // go to shelter immediately
+    RED(70, Color.RED, RED_NRC, RED_CONTINUE_SHELTER, RED_SHELTER_IMMEDIATELY,
+            RED_CONTINUE_SHELTER_UNTIL_FURTHER_NOTICE), // go to shelter immediately
     UNKNOWN(60, new Color(255, 0, 255)) //purple
     ;
 

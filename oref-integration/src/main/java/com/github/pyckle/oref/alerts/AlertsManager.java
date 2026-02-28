@@ -67,7 +67,13 @@ public class AlertsManager {
         logger.trace("Last Updated: {}", alert.getLastUpdated());
         List<AlertDetails> activeAlerts = getAlertDetails(alert);
         List<AlertDetails> alert24Hours = getAlertHistoryAsDetails();
-        List<AlertDetails> historicalAlerts = getHistoricalAlerts(alert24Hours.isEmpty() ? LocalDateTime.MAX : alert24Hours.get(alert24Hours.size() - 1).remoteTimestamp());
+
+        if (isAlertHistoryApiBroken(alert24Hours)) {
+            alert24Hours = List.of();
+        }
+        List<AlertDetails> historicalAlerts = getHistoricalAlerts(alert24Hours.isEmpty() ?
+                LocalDateTime.MAX :
+                alert24Hours.get(alert24Hours.size() - 1).remoteTimestamp());
 
         List<AlertDetails> ret = new ArrayList<>(activeAlerts.size() + alert24Hours.size() + historicalAlerts.size());
 
@@ -83,6 +89,21 @@ public class AlertsManager {
         ret.addAll(historicalAlerts);
 
         this.currentAlerts = new AlertStatus(Collections.unmodifiableList(ret), alert.getLastUpdated());
+    }
+
+    /**
+     * It seems that the 24 hour alert API has a max event size of 19425. At which point it just eats the newer events.
+     * You know - the active events that should be actually be acted upon.
+     * So if the History API has newer events than the historical alerts API, Ignore the AlertHistory api.
+     * Certainly NOT ideal.
+     * @param alert24Hours the alerts from the last 24 hours
+     * @return whether the returned API results are stale and should be ignored
+     */
+    private boolean isAlertHistoryApiBroken(List<AlertDetails> alert24Hours) {
+        var history = orefApiCachingService.getHistory().retrievedValue();
+        boolean isAlertHistoryApiBroken = !alert24Hours.isEmpty() && !history.isEmpty() && history.get(0).alertDate()
+                .isAfter(alert24Hours.get(0).remoteTimestamp());
+        return isAlertHistoryApiBroken;
     }
 
     private List<AlertDetails> getAlertDetails(CachedApiResult<List<ActiveAlert>> activeAlerts) {

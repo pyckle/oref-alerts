@@ -16,5 +16,6 @@ public class FlashUpdateTypeConstants
     public static final String ORANGE_ALERTS_EXPECTED_SHORTLY = "בדקות הקרובות צפויות להתקבל התרעות";
     public static final String RED_SHELTER_IMMEDIATELY = "היכנסו מיד למרחב המוגן";
     public static final String RED_CONTINUE_SHELTER = "יש להמשיך לשהות במרחב המוגן";
+    public static final String RED_CONTINUE_SHELTER_UNTIL_FURTHER_NOTICE = "על תושבי האזורים הבאים להמשיך לשהות במרחב המוגן עד לקבלת הודעה חדשה";
     public static final String RED_NRC = "אירוע במרחב הקרייה למחקר גרעיני  - היכנסו למבנה";
 }
