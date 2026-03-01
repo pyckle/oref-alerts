@@ -7,8 +7,8 @@ import java.time.Duration;
 import java.util.Arrays;
 
 public class OrefHttpRequestFactory {
-    // timeout is set to 8 seconds in javascript in Oref Website
-    private static final Duration callTimeout = Duration.ofMillis(8_000);
+    // timeout is set to 8 seconds in javascript in Oref Website. Increased due to slow api calls
+    private static final Duration callTimeout = Duration.ofMillis(12_000);
     private static final String acceptEncodingHeader = "Accept-Encoding";
     private static final String acceptEncodingGzip = "gzip";
 
