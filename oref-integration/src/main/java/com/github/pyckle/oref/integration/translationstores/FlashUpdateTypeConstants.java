@@ -8,6 +8,7 @@ public class FlashUpdateTypeConstants
     public static final String GREEN_TERRORIST_THREAT_ENDED = "חדירת מחבלים -  החשש הוסר";
     public static final String GREEN_UAV_THREAT_ENDED = "חדירת כלי טיס עוין - האירוע הסתיים";
     public static final String GREEN_ROCKET_THREAT_ENDED = "ירי רקטות וטילים -  האירוע הסתיים";
+    public static final String GREEN_EVENT_ENDED = "האירוע הסתיים";
     public static final String YELLOW_STAY_CLOSE_TO_SHELTER = "יש לשהות בסמיכות למרחב המוגן";
     public static final String YELLOW_STAY_CLOSE_TO_SHELTER2 = "שהייה בסמיכות למרחב מוגן";
     public static final String YELLOW_LEAVE_SHELTER_STAY_CLOSE = "ניתן לצאת מהמרחב המוגן אך יש להישאר בקרבתו";

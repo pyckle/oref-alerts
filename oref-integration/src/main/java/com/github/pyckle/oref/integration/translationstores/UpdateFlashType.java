@@ -14,6 +14,7 @@ import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTy
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_NRC_LEAVE_BUILDING;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_ROCKET_THREAT_ENDED;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_TERRORIST_THREAT_ENDED;
+import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_EVENT_ENDED;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_UAV_THREAT_ENDED;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.ORANGE_ALERTS_EXPECTED_SHORTLY;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.RED_CONTINUE_SHELTER;
@@ -29,7 +30,7 @@ import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTy
 public enum UpdateFlashType
 {
     GREEN(100, Color.GREEN, GREEN_NRC_LEAVE_BUILDING, GREEN_LEAVE_BUILDING, GREEN_TERRORIST_THREAT_ENDED,
-            GREEN_ROCKET_THREAT_ENDED, GREEN_UAV_THREAT_ENDED), // safe to leave building
+            GREEN_ROCKET_THREAT_ENDED, GREEN_UAV_THREAT_ENDED, GREEN_EVENT_ENDED), // safe to leave building
     YELLOW(90, Color.YELLOW, YELLOW_EARTHQUAKE, YELLOW_STAY_CLOSE_TO_SHELTER, YELLOW_STAY_CLOSE_TO_SHELTER2,
             YELLOW_LEAVE_SHELTER_STAY_CLOSE, YELLOW_LEAVE_SHELTER), // stay close to a shelter
     ORANGE(80, Color.ORANGE, ORANGE_ALERTS_EXPECTED_SHORTLY), // alerts expected area shortly
