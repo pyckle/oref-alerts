@@ -15,8 +15,11 @@ import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTy
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_ROCKET_THREAT_ENDED;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_TERRORIST_THREAT_ENDED;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_EVENT_ENDED;
+import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_TERRORIST_THREAT_ENDED_2;
+import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_TERRORIST_THREAT_ENDED_3;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.GREEN_UAV_THREAT_ENDED;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.ORANGE_ALERTS_EXPECTED_SHORTLY;
+import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.ORANGE_THREAT_FROM_LEBANON;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.RED_CONTINUE_SHELTER;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.RED_CONTINUE_SHELTER_UNTIL_FURTHER_NOTICE;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.RED_NRC;
@@ -26,14 +29,17 @@ import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTy
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.YELLOW_LEAVE_SHELTER_STAY_CLOSE;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.YELLOW_STAY_CLOSE_TO_SHELTER;
 import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.YELLOW_STAY_CLOSE_TO_SHELTER2;
+import static com.github.pyckle.oref.integration.translationstores.FlashUpdateTypeConstants.YELLOW_STAY_CLOSE_TO_SHELTER3;
 
 public enum UpdateFlashType
 {
     GREEN(100, Color.GREEN, GREEN_NRC_LEAVE_BUILDING, GREEN_LEAVE_BUILDING, GREEN_TERRORIST_THREAT_ENDED,
-            GREEN_ROCKET_THREAT_ENDED, GREEN_UAV_THREAT_ENDED, GREEN_EVENT_ENDED), // safe to leave building
+            GREEN_TERRORIST_THREAT_ENDED_2, GREEN_TERRORIST_THREAT_ENDED_3, GREEN_ROCKET_THREAT_ENDED,
+            GREEN_UAV_THREAT_ENDED, GREEN_EVENT_ENDED), // safe to leave building
     YELLOW(90, Color.YELLOW, YELLOW_EARTHQUAKE, YELLOW_STAY_CLOSE_TO_SHELTER, YELLOW_STAY_CLOSE_TO_SHELTER2,
-            YELLOW_LEAVE_SHELTER_STAY_CLOSE, YELLOW_LEAVE_SHELTER), // stay close to a shelter
-    ORANGE(80, Color.ORANGE, ORANGE_ALERTS_EXPECTED_SHORTLY), // alerts expected area shortly
+            YELLOW_STAY_CLOSE_TO_SHELTER3, YELLOW_LEAVE_SHELTER_STAY_CLOSE,
+            YELLOW_LEAVE_SHELTER), // stay close to a shelter
+    ORANGE(80, Color.ORANGE, ORANGE_ALERTS_EXPECTED_SHORTLY, ORANGE_THREAT_FROM_LEBANON), // alerts expected area shortly
     RED(70, Color.RED, RED_NRC, RED_CONTINUE_SHELTER, RED_SHELTER_IMMEDIATELY,
             RED_CONTINUE_SHELTER_UNTIL_FURTHER_NOTICE), // go to shelter immediately
     UNKNOWN(60, new Color(255, 0, 255)) //purple
