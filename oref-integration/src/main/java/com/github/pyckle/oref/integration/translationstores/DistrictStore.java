@@ -85,7 +85,7 @@ public class DistrictStore {
     }
 
     private District internalGetAlertArea() {
-        if (orefConfig.getAlertArea() == null)
+        if (Objects.requireNonNullElse(orefConfig.getAlertArea(), "").isEmpty())
             return null; // all of country
 
         if (hebrewNameToDistrictInfo.isEmpty()) {

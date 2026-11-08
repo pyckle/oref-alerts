@@ -37,7 +37,6 @@ public class OrefApiUris {
     public final URI districtsUri;
 
     public OrefApiUris(OrefConfig orefConfig) {
-        String lang = orefConfig.getLang();
 
         alertsUri = URI.create(URI_BASE + "/warningMessages/alert/Alerts.json");
 
@@ -49,11 +48,13 @@ public class OrefApiUris {
         // mode 2 is 1 week.
         // mode 3 is 1 month.
         historyUri =
-                URI.create(URI_BASE_HISTORY + "/Shared/Ajax/GetAlarmsHistory.aspx?lang=he&mode=3");
+                URI.create(URI_BASE + "/api/v1/AlertHistory/heb?period=lastDay&cities=");
 
         categoriesUri = URI.create(URI_BASE + "/alerts/alertCategories.json");
+
+        String lang = orefConfig.getDistrictLang();
         districtsUri = URI.create(
-                URI_BASE_HISTORY + "/Shared/Ajax/GetDistricts.aspx?lang=" + lang);
+                URI_BASE + "/districts/districts_" + lang +".json");
     }
 
 

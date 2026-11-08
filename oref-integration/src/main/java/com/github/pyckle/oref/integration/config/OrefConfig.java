@@ -40,6 +40,16 @@ public class OrefConfig {
         return lang;
     }
 
+    public String getDistrictLang() {
+        return switch (getLang()) {
+            case "he"-> "heb";
+            case "en"-> "eng";
+            case "ru"-> "eng";
+            case "ar"-> "arb";
+            default -> throw new IllegalStateException("Unexpected value: " + getLang());
+        };
+    }
+
     public boolean isRightToLeft() {
         boolean isRightToLeft = Set.of("he", "ar").contains(getLang());
         return isRightToLeft;

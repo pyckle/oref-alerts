@@ -13,9 +13,9 @@ import java.time.temporal.ChronoField;
  * @param data          {@link HistoryEvent#data()}
  * @param date          {@link HistoryEvent#date()}
  * @param time          {@link HistoryEvent#time()}
- * @param alertDate     {@link HistoryEvent#alertDate()} ()}
+ * @param alertDate     {@link HistoryEvent#dateTime()} ()}
  * @param category      {@link HistoryEvent#category()} }
- * @param category_desc {@link HistoryEvent#category_desc()} }
+ * @param category_desc {@link HistoryEvent#category_Desc()} }
  * @param matrixId      {@link HistoryEvent#category()}
  * @param rid           {@link HistoryEvent#rid()}
  */

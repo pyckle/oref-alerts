@@ -88,7 +88,7 @@ public class AlertsManager {
         ret.addAll(alert24Hours);
         ret.addAll(historicalAlerts);
 
-        this.currentAlerts = new AlertStatus(Collections.unmodifiableList(ret), alert.getLastUpdated());
+        this.currentAlerts = new AlertStatus(Collections.unmodifiableList(ret), alert.getLastFetched());
     }
 
     /**

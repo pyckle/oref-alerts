@@ -3,8 +3,8 @@ package com.github.pyckle.oref.integration.caching;
 import com.github.pyckle.oref.integration.config.OrefApiUris;
 import com.github.pyckle.oref.integration.datetime.OrefDateTimeUtils;
 import com.github.pyckle.oref.integration.dto.AlertHistory;
-import com.github.pyckle.oref.integration.dto.HistoryEvent;
 import com.github.pyckle.oref.integration.dto.HistoryEventWithParsedDates;
+import com.github.pyckle.oref.integration.dto.HistoryPagedApi;
 import com.google.gson.reflect.TypeToken;
 
 import java.time.Duration;
@@ -21,18 +21,19 @@ public class HistoryApiFactory {
                 OrefHttpRequestFactory.buildRequest(uris.getHistoryUri()),
                 Duration.ofHours(2),
                 Duration.ofMinutes(10),
-                new TypeToken<List<HistoryEvent>>() {
+                new TypeToken<HistoryPagedApi>() {
                 },
                 List.of(),
-                historyEvents -> historyEvents.responseObj().stream()
+                historyEvents -> historyEvents.responseObj().alarmsGroupedByDate()
+                        .stream().flatMap(alarmsGroupedByDate -> alarmsGroupedByDate.value().stream())
                         .map(event -> {
                             LocalDate date = LocalDate.parse(event.date(),
                                     HistoryEventWithParsedDates.eventDateFormatterDecoder);
                             LocalTime time = LocalTime.parse(event.time());
-                            LocalDateTime alertDate = LocalDateTime.parse(event.alertDate());
+                            LocalDateTime alertDate = LocalDateTime.parse(event.dateTime());
                             return new HistoryEventWithParsedDates(event.data(), date, time, alertDate,
                                     event.category(),
-                                    event.category_desc(), event.matrixId(), event.rid());
+                                    event.category_Desc(), event.matrixId(), event.rid());
                         })
                         .sorted(Comparator.comparing(HistoryEventWithParsedDates::alertDate)
                                 .thenComparing(HistoryEventWithParsedDates::time)
