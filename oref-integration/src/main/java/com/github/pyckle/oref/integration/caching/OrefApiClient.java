@@ -12,7 +12,7 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,7 +81,6 @@ public class OrefApiClient {
         }
     }
 
-    @NotNull
     private static List<String> convertHeadersToOkHttp(HttpRequest req)
     {
         List<String> allheaders = new ArrayList<>();
@@ -130,9 +129,8 @@ public class OrefApiClient {
     {
         private final Map<String, InetAddress> cachedIps = new HashMap<>();
 
-        @NotNull
         @Override
-        public synchronized List<InetAddress> lookup(@NotNull String hostname) throws UnknownHostException
+        public synchronized @NonNull List<InetAddress> lookup(String hostname) throws UnknownHostException
         {
             try
             {
