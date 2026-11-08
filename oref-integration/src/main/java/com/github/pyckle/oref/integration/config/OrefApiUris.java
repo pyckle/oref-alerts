@@ -48,7 +48,7 @@ public class OrefApiUris {
         // mode 2 is 1 week.
         // mode 3 is 1 month.
         historyUri =
-                URI.create(URI_BASE + "/api/v1/AlertHistory/heb?period=lastDay&cities=");
+                URI.create(URI_BASE + "/api/v1/AlertHistory/heb?period=lastMonth&cities=");
 
         categoriesUri = URI.create(URI_BASE + "/alerts/alertCategories.json");
 
